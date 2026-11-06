@@ -54,73 +54,80 @@
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 antialiased flex flex-col">
 
-  <!-- Header Institucional -->
+  <!-- ==================== HEADER INSTITUCIONAL ==================== -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
         <!-- Logo USB y Título -->
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-md shadow-emerald-700/20">
-            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          <div class="h-11 w-11 flex items-center justify-center p-0.5 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <img src="/logo-unisimon.png" alt="Universidad Simón Bolívar" class="h-10 w-auto object-contain">
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <span class="font-extrabold text-slate-900 text-lg tracking-tight">Monitorías USB</span>
+              <span class="font-extrabold text-emerald-900 text-lg tracking-tight">Monitorías USB</span>
               <span class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
                 PIM-D • 2026-2
               </span>
             </div>
-            <p class="text-xs text-slate-500 hidden sm:block">Universidad Simón Bolívar — Departamento de Pedagogía (PIM-D)</p>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Universidad Simón Bolívar — Departamento de Pedagogía</p>
           </div>
         </div>
 
-        <!-- Conmutador de Rol (RBAC Multi-Monitor vs Coordinación) -->
-        <div class="flex items-center bg-slate-100 p-1 rounded-xl">
-          <button id="btnRoleMonitor" onclick="switchRole('MONITOR')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-emerald-700 shadow-sm">
-            <i data-lucide="user" class="w-3.5 h-3.5"></i>
-            <span>Vista Monitor</span>
-          </button>
-          <button id="btnRoleCoord" onclick="switchRole('COORDINADOR')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-            <span>Vista Coordinación PIM-D</span>
-          </button>
-        </div>
-
-        <!-- Perfil Usuario -->
-        <div class="flex items-center space-x-3">
-          <div class="text-right hidden md:block">
-            <p id="userNameDisplay" class="text-sm font-bold text-slate-800">Johan Sebastian Rojas Gómez</p>
-            <p id="userCodeDisplay" class="text-xs text-slate-500 font-mono">MONITOR18</p>
+        <!-- Conmutador de Vistas / Roles -->
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center bg-slate-100 p-1 rounded-xl">
+            <button id="btnRoleMonitor" onclick="switchRole('MONITOR')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-emerald-700 shadow-sm">
+              <i data-lucide="user" class="w-3.5 h-3.5"></i>
+              <span>Monitor</span>
+            </button>
+            <button id="btnRoleCoord" onclick="switchRole('COORDINADOR')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+              <span>Director / Maestro</span>
+            </button>
           </div>
-          <div class="w-9 h-9 rounded-full bg-emerald-100 border-2 border-emerald-600 flex items-center justify-center text-emerald-800 font-bold text-sm shadow-sm">
-            <span id="userInitial">J</span>
+
+          <!-- Perfil y Botón de Login / Logout -->
+          <div class="flex items-center space-x-3 pl-2 border-l border-slate-200">
+            <div class="text-right hidden md:block">
+              <p id="userNameDisplay" class="text-xs font-bold text-slate-800">Johan Sebastian Rojas Gómez</p>
+              <p id="userCodeDisplay" class="text-[11px] text-slate-500 font-mono">MONITOR18</p>
+            </div>
+            <button onclick="openLoginModal()" title="Cambiar usuario o iniciar sesión" class="h-9 w-9 rounded-full bg-emerald-50 border border-emerald-600 flex items-center justify-center text-emerald-800 font-bold text-xs hover:bg-emerald-100 transition shadow-sm">
+              <span id="userInitial">J</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Contenedor Principal -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6 no-print">
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6 no-print">
 
     <!-- ==================== SECCIÓN 1: VISTA MONITOR ==================== -->
     <div id="monitorView" class="space-y-6">
       
-      <!-- Banner de Homologación PIM-D -->
-      <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="bg-emerald-500/20 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-md border border-emerald-400/30">
-              Formato Institucional PM-DO-PEG-F066
-            </span>
-            <span class="text-xs text-emerald-100 font-medium">Departamento de Pedagogía</span>
+      <!-- Banner Institucional PIM-D con Logo Oficial -->
+      <div class="bg-gradient-to-r from-emerald-850 via-emerald-800 to-teal-900 text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-emerald-700/50">
+        <div class="flex items-center space-x-4">
+          <div class="bg-white p-2 rounded-xl shadow-md hidden sm:block">
+            <img src="/logo-unisimon.png" alt="Logo USB" class="h-10 w-auto object-contain">
           </div>
-          <h2 class="text-base font-bold mt-1">Programa Institucional Monitores para la Docencia (PIM-D)</h2>
-          <p class="text-xs text-emerald-100/80">Tu registro digital en esta plataforma genera automáticamente el formato físico oficial requerido para legalizar tus horas.</p>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="bg-white/20 text-emerald-100 text-[11px] font-bold px-2.5 py-0.5 rounded-md border border-white/20">
+                Formato PM-DO-PEG-F066
+              </span>
+              <span class="text-xs text-emerald-100 font-medium">Departamento de Pedagogía</span>
+            </div>
+            <h2 class="text-base font-bold mt-1">Programa Institucional Monitores para la Docencia (PIM-D)</h2>
+            <p class="text-xs text-emerald-100/80">Tus registros computan a tu meta y generan la planilla física oficial lista para radicar.</p>
+          </div>
         </div>
-        <button onclick="openOfficialFormatModal()" class="inline-flex items-center space-x-2 px-4 py-2 bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs rounded-xl shadow transition whitespace-nowrap">
+        <button onclick="openOfficialFormatModal()" class="inline-flex items-center space-x-2 px-4 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs rounded-xl shadow transition whitespace-nowrap">
           <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
-          <span>Ver Planilla PM-DO-PEG-F066</span>
+          <span>Planilla Oficial PM-DO-PEG-F066</span>
         </button>
       </div>
 
@@ -131,7 +138,7 @@
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
-                  Requisito Reglamentario
+                  Requisito de Horas
                 </span>
                 <span id="statusBadge" class="inline-flex items-center text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/50">
                   <i data-lucide="clock" class="w-3.5 h-3.5 mr-1"></i> En Progreso
@@ -271,7 +278,7 @@
               </tr>
             </thead>
             <tbody id="sessionsTableBody" class="divide-y divide-slate-100">
-              <!-- Renderizado dinámico vía JavaScript -->
+              <!-- Renderizado dinámico -->
             </tbody>
           </table>
         </div>
@@ -284,91 +291,265 @@
       </div>
     </div>
 
-    <!-- ==================== SECCIÓN 2: VISTA COORDINACIÓN PIM-D ==================== -->
+    <!-- ==================== SECCIÓN 2: VISTA COORDINACIÓN Y DIRECTOR ==================== -->
     <div id="coordinatorView" class="space-y-6 hidden">
-      <!-- Tarjetas Macro del Director -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
-            <span>Horas Totales del Semestre</span>
-            <i data-lucide="clock" class="w-4 h-4 text-emerald-600"></i>
+
+      <!-- Pestañas de la Vista Director -->
+      <div class="flex items-center space-x-2 border-b border-slate-200 pb-3">
+        <button id="tabCoordMatrizBtn" onclick="switchCoordTab('matriz')" class="px-4 py-2 text-xs font-bold rounded-xl bg-emerald-700 text-white shadow-sm flex items-center space-x-1.5">
+          <i data-lucide="table" class="w-3.5 h-3.5"></i>
+          <span>Matriz de Monitores</span>
+        </button>
+        <button id="tabCoordCompBtn" onclick="switchCoordTab('comparativa')" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 transition">
+          <i data-lucide="scale" class="w-3.5 h-3.5"></i>
+          <span>Auditoría Cruzada (Monitor vs Excel Director)</span>
+        </button>
+        <button id="tabCoordAdminBtn" onclick="switchCoordTab('admin')" class="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 transition">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          <span>Panel Admin: Gestión de Monitores</span>
+        </button>
+      </div>
+
+      <!-- SUB-TAB 1: MATRIZ DE MONITORES -->
+      <div id="subTabMatriz" class="space-y-6">
+        <!-- Tarjetas Macro del Director -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
+              <span>Horas Totales del Semestre</span>
+              <i data-lucide="clock" class="w-4 h-4 text-emerald-600"></i>
+            </div>
+            <p class="text-3xl font-extrabold text-slate-900 font-mono">698h</p>
+            <p class="text-xs text-slate-500 mt-1">Acumuladas por 20 monitores</p>
           </div>
-          <p class="text-3xl font-extrabold text-slate-900 font-mono">698h</p>
-          <p class="text-xs text-slate-500 mt-1">Acumuladas por 20 monitores</p>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
+              <span>Estudiantes Atendidos</span>
+              <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+            </div>
+            <p class="text-3xl font-extrabold text-slate-900 font-mono">317</p>
+            <p class="text-xs text-slate-500 mt-1">Beneficiarios del PIM-D</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
+              <span>Cumplimiento del Requisito</span>
+              <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <p class="text-3xl font-extrabold text-slate-900 font-mono">6 <span class="text-base text-slate-400 font-normal">/ 20</span></p>
+            <p class="text-xs text-emerald-600 font-semibold mt-1">30% con 54h cumplidas</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
+              <span>Avance Promedio Global</span>
+              <i data-lucide="trending-up" class="w-4 h-4 text-violet-600"></i>
+            </div>
+            <p class="text-3xl font-extrabold text-slate-900 font-mono">68.4%</p>
+            <p class="text-xs text-slate-500 mt-1">Ritmo del periodo 2026-2</p>
+          </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
-            <span>Estudiantes Atendidos</span>
-            <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+        <!-- Matriz Consolidada de 20 Monitores -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Matriz Consolidada PIM-D — Ingeniería de Sistemas</h3>
+              <p class="text-xs text-slate-500">Supervisión en tiempo real del progreso hacia las 54 horas por monitor activo.</p>
+            </div>
+            <button onclick="alert('Exportando consolidado semestral en formato Excel para Pedagogía PIM-D...')" class="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              <span>Exportar Sábana PIM-D</span>
+            </button>
           </div>
-          <p class="text-3xl font-extrabold text-slate-900 font-mono">317</p>
-          <p class="text-xs text-slate-500 mt-1">Beneficiarios del PIM-D</p>
-        </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
-            <span>Cumplimiento del Requisito</span>
-            <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
+          <!-- Buscador de Monitores -->
+          <div class="p-4 bg-slate-50/70 border-b border-slate-100">
+            <div class="relative max-w-md">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+              <input type="text" id="coordSearch" placeholder="Buscar por código (ej: MONITOR14)..." oninput="filterMonitorsTable()" class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            </div>
           </div>
-          <p class="text-3xl font-extrabold text-slate-900 font-mono">6 <span class="text-base text-slate-400 font-normal">/ 20</span></p>
-          <p class="text-xs text-emerald-600 font-semibold mt-1">30% con 54h cumplidas</p>
-        </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 text-xs mb-2">
-            <span>Avance Promedio Global</span>
-            <i data-lucide="trending-up" class="w-4 h-4 text-violet-600"></i>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider">
+                <tr>
+                  <th class="py-3 px-4">Monitor / Código</th>
+                  <th class="py-3 px-4 text-center">Horas Acumuladas</th>
+                  <th class="py-3 px-4">Progreso a 54 Horas</th>
+                  <th class="py-3 px-4 text-center">Estudiantes Atendidos</th>
+                  <th class="py-3 px-4 text-center">Estado</th>
+                  <th class="py-3 px-4 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="monitorsTableBody" class="divide-y divide-slate-100">
+                <!-- Renderizado dinámico -->
+              </tbody>
+            </table>
           </div>
-          <p class="text-3xl font-extrabold text-slate-900 font-mono">68.4%</p>
-          <p class="text-xs text-slate-500 mt-1">Ritmo del periodo 2026-2</p>
         </div>
       </div>
 
-      <!-- Matriz Consolidada de 20 Monitores (Pág. 4 del Caso de Negocio) -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h3 class="text-lg font-bold text-slate-900">Matriz Consolidada PIM-D — Ingeniería de Sistemas</h3>
-            <p class="text-xs text-slate-500">Supervisión en tiempo real del progreso hacia las 54 horas por monitor activo.</p>
-          </div>
-          <button onclick="alert('Exportando consolidado semestral en formato Excel para Pedagogía PIM-D...')" class="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-            <span>Exportar Sábana PIM-D</span>
-          </button>
-        </div>
+      <!-- SUB-TAB 2: AUDITORÍA Y COMPARATIVA CRUZADA (MONITOR VS EXCEL DIRECTOR) -->
+      <div id="subTabComparativa" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="bg-blue-100 text-blue-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                  Módulo de Conciliación Automática
+                </span>
+                <span class="text-xs text-slate-400 font-mono">Algoritmo Anti-Discrepancias</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900 mt-1">Comparativa Cruzada: Horas Plataforma vs Excel Oficial Director</h3>
+              <p class="text-xs text-slate-500">El Director puede cargar su propio Excel general de la facultad para detectar discrepancias automáticamente.</p>
+            </div>
 
-        <!-- Buscador de Monitores -->
-        <div class="p-4 bg-slate-50/70 border-b border-slate-100">
-          <div class="relative max-w-md">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-            <input type="text" id="coordSearch" placeholder="Buscar por código (ej: MONITOR14)..." oninput="filterMonitorsTable()" class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <!-- Botón Cargar Excel del Director -->
+            <button onclick="triggerUploadDirectorExcel()" class="inline-flex items-center space-x-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition">
+              <i data-lucide="upload" class="w-4 h-4"></i>
+              <span>Cargar Excel General del Maestro</span>
+            </button>
           </div>
-        </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider">
-              <tr>
-                <th class="py-3 px-4">Monitor / Código</th>
-                <th class="py-3 px-4 text-center">Horas Acumuladas</th>
-                <th class="py-3 px-4">Progreso a 54 Horas</th>
-                <th class="py-3 px-4 text-center">Estudiantes Atendidos</th>
-                <th class="py-3 px-4 text-center">Estado</th>
-                <th class="py-3 px-4 text-right">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="monitorsTableBody" class="divide-y divide-slate-100">
-              <!-- Renderizado dinámico de los 20 monitores -->
-            </tbody>
-          </table>
+          <!-- Resumen de Discrepancias -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
+            <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
+              <div class="flex justify-between items-center text-xs text-emerald-800 font-semibold mb-1">
+                <span>Monitores Conciliados</span>
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+              </div>
+              <p id="compConciliadosCount" class="text-2xl font-bold text-emerald-900 font-mono">15</p>
+              <p class="text-[11px] text-emerald-700">Horas coinciden al 100%</p>
+            </div>
+
+            <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200">
+              <div class="flex justify-between items-center text-xs text-amber-800 font-semibold mb-1">
+                <span>Diferencias Menores</span>
+                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+              </div>
+              <p id="compDiscrepanciasCount" class="text-2xl font-bold text-amber-900 font-mono">4</p>
+              <p class="text-[11px] text-amber-700">Monitor reportó más o menos horas</p>
+            </div>
+
+            <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-200">
+              <div class="flex justify-between items-center text-xs text-rose-800 font-semibold mb-1">
+                <span>Sin Registro en SIA</span>
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i>
+              </div>
+              <p id="compSinRegistroCount" class="text-2xl font-bold text-rose-900 font-mono">1</p>
+              <p class="text-[11px] text-rose-700">No aparece en el Excel institucional</p>
+            </div>
+          </div>
+
+          <!-- Tabla Comparativa -->
+          <div class="overflow-x-auto border border-slate-200 rounded-xl">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider">
+                <tr>
+                  <th class="py-3 px-4">Monitor / Código</th>
+                  <th class="py-3 px-4 text-center">Horas en Plataforma (Monitor)</th>
+                  <th class="py-3 px-4 text-center">Horas en Excel Maestro (Director)</th>
+                  <th class="py-3 px-4 text-center">Diferencia (Δ)</th>
+                  <th class="py-3 px-4 text-center">Estado de Conciliación</th>
+                  <th class="py-3 px-4 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="comparisonTableBody" class="divide-y divide-slate-100">
+                <!-- Renderizado dinámico de la comparativa -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+
+      <!-- SUB-TAB 3: PANEL ADMIN (HABILITAR / DESHABILITAR MONITORES) -->
+      <div id="subTabAdmin" class="space-y-6 hidden">
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="bg-purple-100 text-purple-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                  Control de Acceso y Gestión
+                </span>
+                <span class="text-xs text-slate-400 font-mono">Permisos de Director</span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900 mt-1">Gestión y Habilitación de Monitores Académicos</h3>
+              <p class="text-xs text-slate-500">Habilita, desactiva o ajusta las metas de los monitores adscritos al programa para el periodo activo.</p>
+            </div>
+
+            <button onclick="openAddMonitorModal()" class="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow transition">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>+ Nuevo Monitor</span>
+            </button>
+          </div>
+
+          <!-- Tabla de Gestión Admin -->
+          <div class="overflow-x-auto border border-slate-200 rounded-xl mt-4">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider">
+                <tr>
+                  <th class="py-3 px-4">Monitor</th>
+                  <th class="py-3 px-4">Código USB</th>
+                  <th class="py-3 px-4 text-center">Meta Asignada</th>
+                  <th class="py-3 px-4 text-center">Horas Validadas</th>
+                  <th class="py-3 px-4 text-center">Estado del Beneficio</th>
+                  <th class="py-3 px-4 text-center">Acceso a Plataforma</th>
+                  <th class="py-3 px-4 text-right">Opciones</th>
+                </tr>
+              </thead>
+              <tbody id="adminMonitorsTableBody" class="divide-y divide-slate-100">
+                <!-- Renderizado dinámico de la gestión -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
+  <!-- ==================== MODAL: LOGIN (ADMIN / MONITOR) ==================== -->
+  <div id="modalLogin" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center">
+      <div class="h-16 w-16 mx-auto mb-3 p-1 bg-white border border-slate-200 rounded-2xl shadow-sm flex items-center justify-center">
+        <img src="/logo-unisimon.png" alt="Universidad Simón Bolívar" class="h-14 w-auto object-contain">
+      </div>
+      <h3 class="text-lg font-bold text-slate-900">Iniciar Sesión</h3>
+      <p class="text-xs text-slate-500 mb-4">Ingresa con tus credenciales institucionales USB</p>
+
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-3 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Usuario / Código:</label>
+          <input type="text" id="loginUser" required placeholder="Admin o MONITOR18" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Contraseña:</label>
+          <input type="password" id="loginPass" required placeholder="admin" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono">
+        </div>
+
+        <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-600 space-y-1">
+          <p class="font-bold text-slate-700">Credenciales de Acceso:</p>
+          <p>• Director / Admin: Usuario <strong class="text-emerald-800">Admin</strong> | Pass: <strong class="text-emerald-800">admin</strong></p>
+          <p>• Monitor Autor: Usuario <strong class="text-emerald-800">MONITOR18</strong> | Pass: <strong class="text-emerald-800">admin</strong></p>
+        </div>
+
+        <div class="pt-2 flex space-x-2">
+          <button type="button" onclick="closeLoginModal()" class="w-1/2 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">
+            Cancelar
+          </button>
+          <button type="submit" class="w-1/2 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm transition">
+            Ingresar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: REGISTRAR MONITORÍA (CAMPOS SIA + FORMATO PIM-D) -->
-  <div id="modalNewSession" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div id="modalNewSession" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
     <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 my-8 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center pb-4 border-b border-slate-100">
         <div>
@@ -520,14 +701,14 @@
         </div>
       </div>
 
-      <!-- FORMATO IMPRIMIBLE OFICIAL PIM-D (RÉPLICA EXACTA DE LA IMAGEN) -->
+      <!-- FORMATO IMPRIMIBLE OFICIAL PIM-D (RÉPLICA EXACTA CON LOGO USB) -->
       <div id="printContainer" class="mt-4 border border-slate-400 bg-white p-3 text-[10px] leading-tight">
         
-        <!-- Encabezado Institucional F066 -->
+        <!-- Encabezado Institucional F066 con Logo Oficial -->
         <table class="w-full border-collapse border border-black mb-1">
           <tr>
-            <td rowspan="3" class="w-24 border border-black text-center p-1">
-              <div class="font-bold text-emerald-800 text-xs">UNIVERSIDAD<br>SIMÓN BOLÍVAR</div>
+            <td rowspan="3" class="w-28 border border-black text-center p-1.5 bg-white">
+              <img src="/logo-unisimon.png" alt="Universidad Simón Bolívar" class="h-10 mx-auto object-contain">
             </td>
             <td class="border border-black text-center font-bold text-[11px] py-1">
               UNIVERSIDAD SIMÓN BOLÍVAR - Sede Cúcuta<br>
@@ -625,7 +806,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CERTIFICADO PAZ Y SALVO (PDF SIMULATOR) -->
+  <!-- MODAL: CERTIFICADO PAZ Y SALVO (PDF SIMULATOR CON LOGO USB) -->
   <div id="modalPazYSalvo" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
     <div class="bg-white rounded-2xl max-w-xl w-full p-8 shadow-2xl border border-slate-200">
       <div class="flex justify-between items-center pb-4 border-b border-slate-100">
@@ -639,6 +820,7 @@
       </div>
 
       <div class="mt-6 border-4 border-double border-emerald-900/30 p-6 rounded-xl bg-emerald-50/20 text-center space-y-3">
+        <img src="/logo-unisimon.png" alt="Universidad Simón Bolívar" class="h-12 mx-auto object-contain mb-2">
         <h4 class="font-extrabold text-sm text-slate-900 tracking-wide uppercase">Universidad Simón Bolívar</h4>
         <p class="text-xs text-slate-500 font-serif">Facultad de Ingenierías — Departamento de Pedagogía (PIM-D)</p>
         
@@ -674,9 +856,9 @@
     Proyecto Final de Ingeniería de Sistemas — Universidad Simón Bolívar (Cúcuta) © 2026.
   </footer>
 
-  <!-- SCRIPT DE COMPORTAMIENTO INTERACTIVO -->
+  <!-- ==================== SCRIPT DE COMPORTAMIENTO INTERACTIVO ==================== -->
   <script>
-    // Sesiones del Monitor (incluyendo datos homologados con PIM-D Formato PM-DO-PEG-F066)
+    // Sesiones del Monitor Autor (MONITOR18)
     let sessions = [
       {
         id: '1',
@@ -777,40 +959,46 @@
       }
     ];
 
-    const allMonitors = [
-      { code: 'MONITOR18', name: 'Johan Sebastian Rojas Gómez', hours: 38, students: 24, target: 54 },
-      { code: 'MONITOR1', name: 'Estudiante MONITOR1', hours: 36, students: 17, target: 54 },
-      { code: 'MONITOR14', name: 'Estudiante MONITOR14', hours: 246, students: 135, target: 54 },
-      { code: 'MONITOR11', name: 'Estudiante MONITOR11', hours: 99, students: 38, target: 54 },
-      { code: 'MONITOR20', name: 'Estudiante MONITOR20', hours: 96, students: 44, target: 54 },
-      { code: 'MONITOR26', name: 'Estudiante MONITOR26', hours: 85, students: 27, target: 54 },
-      { code: 'MONITOR27', name: 'Estudiante MONITOR27', hours: 71, students: 37, target: 54 },
-      { code: 'MONITOR2', name: 'Estudiante MONITOR2', hours: 40, students: 8, target: 54 },
-      { code: 'MONITOR21', name: 'Estudiante MONITOR21', hours: 10, students: 5, target: 54 },
-      { code: 'MONITOR29', name: 'Estudiante MONITOR29', hours: 10, students: 3, target: 54 },
-      { code: 'MONITOR10', name: 'Estudiante MONITOR10', hours: 3, students: 2, target: 54 },
-      { code: 'MONITOR32', name: 'Estudiante MONITOR32', hours: 2, students: 1, target: 54 },
-      { code: 'MONITOR3', name: 'Estudiante MONITOR3', hours: 25, students: 12, target: 54 },
-      { code: 'MONITOR4', name: 'Estudiante MONITOR4', hours: 54, students: 22, target: 54 },
-      { code: 'MONITOR5', name: 'Estudiante MONITOR5', hours: 55, students: 20, target: 54 },
-      { code: 'MONITOR6', name: 'Estudiante MONITOR6', hours: 18, students: 9, target: 54 },
-      { code: 'MONITOR7', name: 'Estudiante MONITOR7', hours: 48, students: 15, target: 54 },
-      { code: 'MONITOR8', name: 'Estudiante MONITOR8', hours: 12, students: 6, target: 54 },
-      { code: 'MONITOR9', name: 'Estudiante MONITOR9', hours: 30, students: 14, target: 54 },
-      { code: 'MONITOR12', name: 'Estudiante MONITOR12', hours: 54, students: 25, target: 54 },
+    // Los 20 Monitores Reales (Pág. 4) con estado de habilitación y horas oficiales del Director
+    let allMonitors = [
+      { code: 'MONITOR18', name: 'Johan Sebastian Rojas Gómez', platformHours: 38, directorExcelHours: 36, students: 24, target: 54, enabled: true },
+      { code: 'MONITOR1', name: 'Estudiante MONITOR1', platformHours: 36, directorExcelHours: 36, students: 17, target: 54, enabled: true },
+      { code: 'MONITOR14', name: 'Estudiante MONITOR14', platformHours: 246, directorExcelHours: 246, students: 135, target: 54, enabled: true },
+      { code: 'MONITOR11', name: 'Estudiante MONITOR11', platformHours: 99, directorExcelHours: 99, students: 38, target: 54, enabled: true },
+      { code: 'MONITOR20', name: 'Estudiante MONITOR20', platformHours: 96, directorExcelHours: 96, students: 44, target: 54, enabled: true },
+      { code: 'MONITOR26', name: 'Estudiante MONITOR26', platformHours: 85, directorExcelHours: 85, students: 27, target: 54, enabled: true },
+      { code: 'MONITOR27', name: 'Estudiante MONITOR27', platformHours: 71, directorExcelHours: 67, students: 37, target: 54, enabled: true },
+      { code: 'MONITOR2', name: 'Estudiante MONITOR2', platformHours: 40, directorExcelHours: 40, students: 8, target: 54, enabled: true },
+      { code: 'MONITOR21', name: 'Estudiante MONITOR21', platformHours: 10, directorExcelHours: 10, students: 5, target: 54, enabled: true },
+      { code: 'MONITOR29', name: 'Estudiante MONITOR29', platformHours: 10, directorExcelHours: 10, students: 3, target: 54, enabled: true },
+      { code: 'MONITOR10', name: 'Estudiante MONITOR10', platformHours: 3, directorExcelHours: 3, students: 2, target: 54, enabled: true },
+      { code: 'MONITOR32', name: 'Estudiante MONITOR32', platformHours: 2, directorExcelHours: 0, students: 1, target: 54, enabled: false },
+      { code: 'MONITOR3', name: 'Estudiante MONITOR3', platformHours: 25, directorExcelHours: 25, students: 12, target: 54, enabled: true },
+      { code: 'MONITOR4', name: 'Estudiante MONITOR4', platformHours: 54, directorExcelHours: 54, students: 22, target: 54, enabled: true },
+      { code: 'MONITOR5', name: 'Estudiante MONITOR5', platformHours: 55, directorExcelHours: 55, students: 20, target: 54, enabled: true },
+      { code: 'MONITOR6', name: 'Estudiante MONITOR6', platformHours: 18, directorExcelHours: 18, students: 9, target: 54, enabled: true },
+      { code: 'MONITOR7', name: 'Estudiante MONITOR7', platformHours: 48, directorExcelHours: 48, students: 15, target: 54, enabled: true },
+      { code: 'MONITOR8', name: 'Estudiante MONITOR8', platformHours: 12, directorExcelHours: 16, students: 6, target: 54, enabled: true },
+      { code: 'MONITOR9', name: 'Estudiante MONITOR9', platformHours: 30, directorExcelHours: 30, students: 14, target: 54, enabled: true },
+      { code: 'MONITOR12', name: 'Estudiante MONITOR12', platformHours: 54, directorExcelHours: 54, students: 25, target: 54, enabled: true },
     ];
 
     let currentAttendees = [];
+    let currentRole = 'MONITOR';
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('inpDate').value = new Date().toISOString().split('T')[0];
       recalculateProgress();
       renderSessions(sessions);
       renderMonitorsTable(allMonitors);
+      renderComparisonTable();
+      renderAdminTable();
       lucide.createIcons();
     });
 
+    // Cambiar de Rol (Monitor vs Director/Maestro)
     function switchRole(role) {
+      currentRole = role;
       const isMonitor = role === 'MONITOR';
       document.getElementById('monitorView').classList.toggle('hidden', !isMonitor);
       document.getElementById('coordinatorView').classList.toggle('hidden', isMonitor);
@@ -828,10 +1016,213 @@
         btnCoord.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-emerald-700 shadow-sm';
         btnMon.className = 'flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900';
         document.getElementById('userNameDisplay').textContent = 'Jover Alonso Cabrales (Director)';
-        document.getElementById('userCodeDisplay').textContent = 'DOC-1001';
-        document.getElementById('userInitial').textContent = 'D';
+        document.getElementById('userCodeDisplay').textContent = 'Admin / DOC-1001';
+        document.getElementById('userInitial').textContent = 'A';
       }
       lucide.createIcons();
+    }
+
+    // Pestañas internas de Coordinación
+    function switchCoordTab(tab) {
+      document.getElementById('subTabMatriz').classList.toggle('hidden', tab !== 'matriz');
+      document.getElementById('subTabComparativa').classList.toggle('hidden', tab !== 'comparativa');
+      document.getElementById('subTabAdmin').classList.toggle('hidden', tab !== 'admin');
+
+      const btnM = document.getElementById('tabCoordMatrizBtn');
+      const btnC = document.getElementById('tabCoordCompBtn');
+      const btnA = document.getElementById('tabCoordAdminBtn');
+
+      const activeClass = 'px-4 py-2 text-xs font-bold rounded-xl bg-emerald-700 text-white shadow-sm flex items-center space-x-1.5';
+      const inactiveClass = 'px-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 transition';
+
+      btnM.className = tab === 'matriz' ? activeClass : inactiveClass;
+      btnC.className = tab === 'comparativa' ? activeClass : inactiveClass;
+      btnA.className = tab === 'admin' ? activeClass : inactiveClass;
+
+      lucide.createIcons();
+    }
+
+    // Modal de Login (Admin / admin)
+    function openLoginModal() {
+      document.getElementById('modalLogin').classList.remove('hidden');
+    }
+    function closeLoginModal() {
+      document.getElementById('modalLogin').classList.add('hidden');
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+
+      if ((user.toLowerCase() === 'admin' || user.toLowerCase() === 'director') && pass === 'admin') {
+        closeLoginModal();
+        switchRole('COORDINADOR');
+        alert('¡Bienvenido, Director / Administrador! Has ingresado al panel de control total.');
+      } else if (user.toUpperCase() === 'MONITOR18' || user.toLowerCase() === 'j_rojas20') {
+        closeLoginModal();
+        switchRole('MONITOR');
+        alert('¡Bienvenido, Johan Sebastian Rojas Gómez (MONITOR18)!');
+      } else {
+        alert('Credenciales incorrectas.\nRecuerda: Usuario "Admin" y contraseña "admin".');
+      }
+    }
+
+    // Renderizar Comparativa Cruzada (Monitor vs Excel Director)
+    function renderComparisonTable() {
+      const tbody = document.getElementById('comparisonTableBody');
+      let conciliados = 0;
+      let discrepancias = 0;
+      let sinRegistro = 0;
+
+      tbody.innerHTML = allMonitors.map(m => {
+        const diff = Number((m.platformHours - m.directorExcelHours).toFixed(1));
+        let statusBadge = '';
+        
+        if (m.directorExcelHours === 0) {
+          sinRegistro++;
+          statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Sin Registro en Excel</span>';
+        } else if (diff === 0) {
+          conciliados++;
+          statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i data-lucide="check" class="w-3 h-3 mr-1"></i> Conciliado</span>';
+        } else if (diff > 0) {
+          discrepancias++;
+          statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">+${diff}h en plataforma</span>`;
+        } else {
+          discrepancias++;
+          statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">${diff}h en plataforma</span>`;
+        }
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="py-3 px-4">
+              <span class="font-bold text-slate-900">${m.name}</span>
+              <span class="block text-[11px] text-slate-400 font-mono">${m.code}</span>
+            </td>
+            <td class="py-3 px-4 text-center font-mono font-bold text-slate-800 text-xs">
+              ${m.platformHours.toFixed(1)}h
+            </td>
+            <td class="py-3 px-4 text-center font-mono font-bold text-emerald-800 text-xs">
+              ${m.directorExcelHours.toFixed(1)}h
+            </td>
+            <td class="py-3 px-4 text-center font-mono font-bold ${diff === 0 ? 'text-slate-400' : diff > 0 ? 'text-amber-600' : 'text-blue-600'}">
+              ${diff > 0 ? '+' + diff : diff}h
+            </td>
+            <td class="py-3 px-4 text-center">
+              ${statusBadge}
+            </td>
+            <td class="py-3 px-4 text-right">
+              <button onclick="reconcileMonitor('${m.code}')" class="text-xs text-slate-500 hover:text-emerald-700 underline font-medium">
+                ${diff === 0 ? 'Ver detalles' : 'Alinear horas'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('compConciliadosCount').textContent = conciliados;
+      document.getElementById('compDiscrepanciasCount').textContent = discrepancias;
+      document.getElementById('compSinRegistroCount').textContent = sinRegistro;
+      lucide.createIcons();
+    }
+
+    function triggerUploadDirectorExcel() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.xlsx, .xls, .csv';
+      input.onchange = e => {
+        alert('Archivo del Maestro procesado con éxito.\n✓ Se analizaron los 20 monitores.\n✓ Algoritmo de auditoría cruzada recalculó las diferencias en tiempo real.');
+        renderComparisonTable();
+      };
+      input.click();
+    }
+
+    function reconcileMonitor(code) {
+      const m = allMonitors.find(x => x.code === code);
+      if (!m) return;
+      const conf = confirm(`¿Deseas sincronizar las horas de ${m.name} para que coincidan exactamente con el reporte institucional del Director (${m.directorExcelHours}h)?`);
+      if (conf) {
+        m.platformHours = m.directorExcelHours;
+        renderComparisonTable();
+        renderMonitorsTable(allMonitors);
+        alert(`Horas conciliadas correctamente para ${m.code}.`);
+      }
+    }
+
+    // Renderizar Panel Admin (Habilitar / Deshabilitar Monitores)
+    function renderAdminTable() {
+      const tbody = document.getElementById('adminMonitorsTableBody');
+      tbody.innerHTML = allMonitors.map((m, idx) => `
+        <tr class="hover:bg-slate-50 transition-colors ${!m.enabled ? 'opacity-60 bg-slate-50/50' : ''}">
+          <td class="py-3 px-4">
+            <span class="font-bold text-slate-900">${m.name}</span>
+            <span class="block text-[11px] text-slate-400">Ingeniería de Sistemas</span>
+          </td>
+          <td class="py-3 px-4 font-mono font-bold text-slate-700">${m.code}</td>
+          <td class="py-3 px-4 text-center font-mono">${m.target}h</td>
+          <td class="py-3 px-4 text-center font-mono font-bold text-emerald-800">${m.platformHours}h</td>
+          <td class="py-3 px-4 text-center">
+            ${m.platformHours >= m.target ? `
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Beneficio Aprobado</span>
+            ` : `
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">En Cumplimiento</span>
+            `}
+          </td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="toggleMonitorStatus(${idx})" class="relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${m.enabled ? 'bg-emerald-600' : 'bg-slate-300'}">
+              <span class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${m.enabled ? 'translate-x-5' : 'translate-x-0'}"></span>
+            </button>
+            <span class="block text-[10px] mt-0.5 font-bold ${m.enabled ? 'text-emerald-700' : 'text-slate-400'}">
+              ${m.enabled ? 'Habilitado' : 'Deshabilitado'}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="editMonitorTarget(${idx})" class="text-xs text-slate-500 hover:text-emerald-700 font-semibold underline">
+              Modificar Meta
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function toggleMonitorStatus(index) {
+      const m = allMonitors[index];
+      m.enabled = !m.enabled;
+      renderAdminTable();
+      renderMonitorsTable(allMonitors);
+      alert(`El monitor ${m.name} (${m.code}) ha sido ${m.enabled ? 'HABILITADO' : 'DESHABILITADO'} en la plataforma.`);
+    }
+
+    function editMonitorTarget(index) {
+      const m = allMonitors[index];
+      const newTarget = prompt(`Ingrese la nueva meta de horas para ${m.name}:`, m.target);
+      if (newTarget && !isNaN(newTarget)) {
+        m.target = Number(newTarget);
+        renderAdminTable();
+        renderMonitorsTable(allMonitors);
+        alert(`Meta de horas actualizada a ${m.target}h para ${m.code}.`);
+      }
+    }
+
+    function openAddMonitorModal() {
+      const code = prompt('Código del nuevo monitor (ej: MONITOR22):');
+      if (!code) return;
+      const name = prompt('Nombre completo del estudiante:');
+      if (!name) return;
+      allMonitors.push({
+        code: code.toUpperCase(),
+        name,
+        platformHours: 0,
+        directorExcelHours: 0,
+        students: 0,
+        target: 54,
+        enabled: true
+      });
+      renderAdminTable();
+      renderMonitorsTable(allMonitors);
+      renderComparisonTable();
+      alert(`Monitor ${name} (${code}) registrado con éxito.`);
     }
 
     function recalculateProgress() {
@@ -997,16 +1388,16 @@
     function renderMonitorsTable(monitors) {
       const tbody = document.getElementById('monitorsTableBody');
       tbody.innerHTML = monitors.map(m => {
-        const pct = Math.min(100, ((m.hours / m.target) * 100)).toFixed(1);
-        const isDone = m.hours >= m.target;
+        const pct = Math.min(100, ((m.platformHours / m.target) * 100)).toFixed(1);
+        const isDone = m.platformHours >= m.target;
         return `
-          <tr class="hover:bg-slate-50/80 transition-colors">
+          <tr class="hover:bg-slate-50/80 transition-colors ${!m.enabled ? 'opacity-50' : ''}">
             <td class="py-3 px-4 whitespace-nowrap">
               <div class="font-bold text-slate-900">${m.name}</div>
               <div class="text-[11px] text-slate-400 font-mono">${m.code}</div>
             </td>
             <td class="py-3 px-4 text-center whitespace-nowrap font-mono font-bold text-slate-800 text-sm">
-              ${m.hours.toFixed(1)}h
+              ${m.platformHours.toFixed(1)}h
             </td>
             <td class="py-3 px-4 whitespace-nowrap min-w-[180px]">
               <div class="flex items-center space-x-2">
@@ -1020,18 +1411,22 @@
               ${m.students} alumnos
             </td>
             <td class="py-3 px-4 text-center whitespace-nowrap">
-              ${isDone ? `
+              ${!m.enabled ? `
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-200 text-slate-600">
+                  Inactivo
+                </span>
+              ` : isDone ? `
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">
                   <i data-lucide="check-circle-2" class="w-3 h-3 mr-1"></i> Cumplido
                 </span>
               ` : `
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">
-                  <i data-lucide="clock" class="w-3 h-3 mr-1"></i> Faltan ${(m.target - m.hours).toFixed(1)}h
+                  <i data-lucide="clock" class="w-3 h-3 mr-1"></i> Faltan ${(m.target - m.platformHours).toFixed(1)}h
                 </span>
               `}
             </td>
             <td class="py-3 px-4 text-right whitespace-nowrap">
-              <button onclick="alert('Historial completo de ${m.name} (${m.code}) listo para auditoría institucional.')" class="text-slate-500 hover:text-emerald-700 font-medium text-[11px] underline">
+              <button onclick="alert('Historial completo de ${m.name} (${m.code}) listo para auditoría.')" class="text-slate-500 hover:text-emerald-700 font-medium text-[11px] underline">
                 Auditar
               </button>
             </td>
@@ -1047,7 +1442,6 @@
       renderMonitorsTable(filtered);
     }
 
-    // Modal Crear Monitoría
     function openNewSessionModal() {
       currentAttendees = [];
       renderAttendeesList();
@@ -1154,13 +1548,20 @@
       };
 
       sessions.unshift(newSess);
+      
+      // Actualizar también la lista general para el autor
+      const author = allMonitors.find(m => m.code === 'MONITOR18');
+      if (author) author.platformHours += hours;
+
       recalculateProgress();
       renderSessions(sessions);
+      renderMonitorsTable(allMonitors);
+      renderComparisonTable();
+      renderAdminTable();
       closeNewSessionModal();
       alert(`¡Sesión guardada con éxito! Se han computado +${hours}h a tu meta de 54 horas.`);
     }
 
-    // Modal Formato Oficial PIM-D (PM-DO-PEG-F066)
     function openOfficialFormatModal() {
       renderOfficialPrintRows();
       document.getElementById('modalOfficialFormat').classList.remove('hidden');
