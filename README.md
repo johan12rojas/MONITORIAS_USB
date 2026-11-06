@@ -77,7 +77,7 @@ MONITORIAS_USB/
 ├── docs/                               # Documentación formal de Tesis
 │   ├── adr/                            # Architecture Decision Records (ADRs)
 │   ├── data-dictionary.md              # Diccionario de Datos y Modelo ER
-│   └── sprints-roadmap.md              # Desglose de los 8 Sprints de Scrum
+│   └── sprints-roadmap.md              # Desglose de los 3 Sprints de Scrum
 ├── backend/                            # API NestJS + TypeScript + Prisma
 │   ├── src/
 │   │   ├── modules/

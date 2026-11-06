@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MONITOR
+  COORDINADOR
+  DIRECTOR
+  ADMIN
+}
+
+enum MonitorStatus {
+  ACTIVO
+  CUMPLIDO
+  INCOMPLETO
+}
+
+enum SessionStatus {
+  PENDIENTE
+  APROBADO
+  OBSERVADO
+}
+
+enum SessionSource {
+  DIRECT
+  SIA_IMPORT
+}
+
+model User {
+  id                String          @id @default(uuid())
+  email             String          @unique
+  passwordHash      String
+  fullName          String
+  institutionalCode String          @unique
+  role              Role            @default(MONITOR)
+  phoneNumber       String?
+  isActive          Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  monitorProfiles   MonitorProfile[]
+  auditLogs         AuditLog[]
+
+  @@map("users")
+}
+
+model AcademicPeriod {
+  id          String   @id @default(uuid())
+  code        String   @unique // Ej: "2026-2"
+  name        String   // Ej: "Periodo 2026 - Segundo Semestre"
+  startDate   DateTime
+  endDate     DateTime
+  isCurrent   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  monitorProfiles    MonitorProfile[]
+  monitoringSessions MonitoringSession[]
+
+  @@map("academic_periods")
+}
+
+model MonitorProfile {
+  id               String         @id @default(uuid())
+  userId           String
+  academicPeriodId String
+  targetHours      Decimal        @default(54.00) @db.Decimal(5, 2)
+  status           MonitorStatus  @default(ACTIVO)
+  assignedProgram  String         @default("Ingeniería de Sistemas")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  academicPeriod   AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+  sessions         MonitoringSession[]
+
+  @@unique([userId, academicPeriodId])
+  @@map("monitor_profiles")
+}
+
+model Subject {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  program   String   @default("Ingeniería de Sistemas")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions  MonitoringSession[]
+
+  @@map("subjects")
+}
+
+model MonitoringSession {
+  id                String          @id @default(uuid())
+  monitorProfileId  String
+  academicPeriodId  String
+  subjectId         String
+  sessionDate       DateTime        @db.Date
+  startTime         String          // Formato "HH:mm" (ej: "14:00")
+  endTime           String          // Formato "HH:mm" (ej: "16:00")
+  calculatedHours   Decimal         @db.Decimal(5, 2)
+  sessionType       String          @default("Presencial") // Presencial, Virtual, Taller, Asesoría
+  topic             String
+  recordingUrl      String?
+  observation       String          @db.Text
+  status            SessionStatus   @default(PENDIENTE)
+  coordinatorNotes  String?         @db.Text
+  source            SessionSource   @default(DIRECT)
+  importHash        String?         @unique // SHA256 anti-duplicados
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  monitorProfile    MonitorProfile  @relation(fields: [monitorProfileId], references: [id], onDelete: Cascade)
+  academicPeriod    AcademicPeriod  @relation(fields: [academicPeriodId], references: [id])
+  subject           Subject         @relation(fields: [subjectId], references: [id])
+  attendees         SessionAttendee[]
+
+  @@index([monitorProfileId, academicPeriodId])
+  @@index([sessionDate])
+  @@index([subjectId])
+  @@map("monitoring_sessions")
+}
+
+model SessionAttendee {
+  id                  String            @id @default(uuid())
+  monitoringSessionId String
+  studentIdCard       String            // Cédula o código del alumno atendido
+  studentName         String
+  studentEmail        String?
+  careerProgram       String?
+  createdAt           DateTime          @default(now())
+
+  session             MonitoringSession @relation(fields: [monitoringSessionId], references: [id], onDelete: Cascade)
+
+  @@index([monitoringSessionId])
+  @@map("session_attendees")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  performedById String
+  action      String   // SESSION_CREATED, SESSION_APPROVED, BULK_IMPORT, etc.
+  entityName  String   // monitoring_sessions, users...
+  entityId    String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  performedBy User     @relation(fields: [performedById], references: [id])
+
+  @@index([performedById])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
