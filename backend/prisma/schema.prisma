@@ -21,8 +21,11 @@ enum MonitorStatus {
 }
 
 enum SessionStatus {
-  PENDIENTE
+  PROGRAMADA
   APROBADO
+  CUMPLIDA_SIN_ALUMNOS
+  CANCELADA_MONITOR
+  PENDIENTE
   OBSERVADO
 }
 
@@ -109,6 +112,9 @@ model MonitoringSession {
   location          String          @default("Campus USB") // Homologado F066 (ej: Sala de Cómputo 3, Virtual)
   topic             String
   recordingUrl      String?
+  evidenceUrl       String?         @db.Text // Foto de evidencia opcional del tablero / aula / captura
+  monitorAttended   Boolean         @default(true) // Si el monitor falta: 0h computadas
+  studentsAttended  Boolean         @default(true) // Si estudiantes faltan pero monitor asiste: SÍ computa horas
   observation       String          @db.Text
   status            SessionStatus   @default(PENDIENTE)
   coordinatorNotes  String?         @db.Text

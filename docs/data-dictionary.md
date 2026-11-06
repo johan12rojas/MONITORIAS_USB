@@ -79,8 +79,11 @@ Registra cada sesión impartida. Homologada tanto con el **SIA** como con el enc
 | `location` | `VARCHAR(150)` | No | `'Campus USB'`| **`LUGAR DE LA MONITORIA` en F066** (ej: Sala 3, Biblioteca). |
 | `topic` | `VARCHAR(255)` | No | - | Tema desarrollado (`Tema` en el SIA). |
 | `recordingUrl` | `VARCHAR(500)` | Sí | `NULL` | Enlace a grabación en Teams (si fue virtual). |
+| `evidence_url` | `TEXT` | Sí | `NULL` | Foto o captura de evidencia de la sesión (tablero, aula, quórum). |
+| `monitor_attended` | `BOOLEAN` | No | `TRUE` | Asistencia del monitor. Si es `FALSE`, computa **0.0 horas**. |
+| `students_attended` | `BOOLEAN` | No | `TRUE` | Asistencia estudiantil. Si es `FALSE` pero monitor asistió, **SÍ suma horas** (guardia cumplida). |
 | `observation` | `TEXT` | No | - | Notas y observaciones de la monitoría. |
-| `status` | `VARCHAR(30)` | No | `'PENDIENTE'` | `'PENDIENTE'`, `'APROBADO'`, `'OBSERVADO'`. |
+| `status` | `VARCHAR(30)` | No | `'PENDIENTE'` | `'PROGRAMADA'`, `'APROBADO'`, `'CUMPLIDA_SIN_ALUMNOS'`, `'CANCELADA_MONITOR'`, `'PENDIENTE'`, `'OBSERVADO'`. |
 | `source` | `VARCHAR(30)` | No | `'DIRECT'` | Origen: `'DIRECT'` (plataforma) o `'SIA_IMPORT'`. |
 | `import_hash` | `VARCHAR(64)` | Sí | `NULL` | Hash SHA-256 para evitar duplicidad de registros. |
 | `created_at` | `TIMESTAMP` | No | `NOW()` | Fecha de creación. |
