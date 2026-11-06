@@ -107,10 +107,25 @@ MONITORIAS_USB/
 
 ---
 
+## 🚀 Ejecución Inmediata del Sistema y Credenciales
+
+El servidor web de la aplicación se encuentra en ejecución en:
+👉 **`http://localhost:3000`**
+
+### Credenciales de Acceso por Rol (RBAC):
+| Perfil | Usuario | Contraseña | Vistas y Capacidades |
+| :--- | :--- | :--- | :--- |
+| **Director de Programa / Admin** | `Admin` | `admin` | • **Progreso de Monitores**: Matriz con barras hacia las 54h.<br>• **Auditoría Cruzada**: Carga de Excel maestro y conciliación ($\Delta$).<br>• **Gestión CRUD**: Asignación de roles, activación de cuentas y bitácora de auditoría. |
+| **Monitor Académico** | `MONITOR18` | `admin` | • **Avance de 54h**: Computador en tiempo real.<br>• **Historial Personal**: Filtros por tema, asignatura y modalidad.<br>• **Formato PIM-D**: Impresión de la planilla física `PM-DO-PEG-F066`.<br>• **Paz y Salvo**: Certificado digital de cumplimiento. |
+
+---
+
 ## 📋 Documentación de Referencia
 
-* [Diccionario de Datos y Modelo ER](docs/data-dictionary.md)
-* [Cronograma y Desglose de Sprints](docs/sprints-roadmap.md)
+* [Diccionario de Datos y Modelo ER (PostgreSQL + Prisma)](docs/data-dictionary.md)
+* [Cronograma y Desglose de Sprints (Scrum 16 Semanas)](docs/sprints-roadmap.md)
 * [ADR 0001: Clean Architecture](docs/adr/0001-clean-architecture.md)
 * [ADR 0002: Aislamiento Multi-Monitor y RBAC](docs/adr/0002-multi-monitor-isolation.md)
 * [ADR 0003: Estrategia de Ingesta SIA](docs/adr/0003-hybrid-integration-sia.md)
+* [ADR 0004: Integración del Formato Oficial PIM-D PM-DO-PEG-F066](docs/adr/0004-official-format-pim-d-integration.md)
+* [ADR 0005: Segregación de Roles (RBAC) y Auditoría Cruzada de Horas](docs/adr/0005-role-segregation-and-cross-audit-engine.md)
