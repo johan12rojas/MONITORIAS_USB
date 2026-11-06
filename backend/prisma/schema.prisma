@@ -106,6 +106,7 @@ model MonitoringSession {
   endTime           String          // Formato "HH:mm" (ej: "16:00")
   calculatedHours   Decimal         @db.Decimal(5, 2)
   sessionType       String          @default("Presencial") // Presencial, Virtual, Taller, Asesoría
+  location          String          @default("Campus USB") // Homologado F066 (ej: Sala de Cómputo 3, Virtual)
   topic             String
   recordingUrl      String?
   observation       String          @db.Text
@@ -130,8 +131,11 @@ model MonitoringSession {
 model SessionAttendee {
   id                  String            @id @default(uuid())
   monitoringSessionId String
-  studentIdCard       String            // Cédula o código del alumno atendido
-  studentName         String
+  studentCode         String?           // CÓDIGO DEL ESTUDIANTE (F066)
+  studentName         String            // NOMBRES Y APELLIDOS (F066)
+  documentType        String            @default("CC") // TIPO DE DOCUMENTO: CC, TI, CE (F066)
+  documentNumber      String            // NÚMERO DE DOCUMENTO (F066)
+  referralType        String            @default("V")  // REMITIDO (R) O VOLUNTARIA (V) (F066)
   studentEmail        String?
   careerProgram       String?
   createdAt           DateTime          @default(now())

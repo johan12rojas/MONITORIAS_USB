@@ -32,12 +32,30 @@
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
     }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printContainer, #printContainer * {
+        visibility: visible;
+      }
+      #printContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 antialiased flex flex-col">
 
   <!-- Header Institucional -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
         <!-- Logo USB y Título -->
@@ -49,10 +67,10 @@
             <div class="flex items-center space-x-2">
               <span class="font-extrabold text-slate-900 text-lg tracking-tight">Monitorías USB</span>
               <span class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
-                Periodo 2026-2
+                PIM-D • 2026-2
               </span>
             </div>
-            <p class="text-xs text-slate-500 hidden sm:block">Universidad Simón Bolívar — Cúcuta | Ingeniería de Sistemas</p>
+            <p class="text-xs text-slate-500 hidden sm:block">Universidad Simón Bolívar — Departamento de Pedagogía (PIM-D)</p>
           </div>
         </div>
 
@@ -64,7 +82,7 @@
           </button>
           <button id="btnRoleCoord" onclick="switchRole('COORDINADOR')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
             <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-            <span>Vista Coordinación</span>
+            <span>Vista Coordinación PIM-D</span>
           </button>
         </div>
 
@@ -83,11 +101,29 @@
   </header>
 
   <!-- Contenedor Principal -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6 no-print">
 
     <!-- ==================== SECCIÓN 1: VISTA MONITOR ==================== -->
     <div id="monitorView" class="space-y-6">
       
+      <!-- Banner de Homologación PIM-D -->
+      <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="bg-emerald-500/20 text-emerald-200 text-[11px] font-bold px-2.5 py-0.5 rounded-md border border-emerald-400/30">
+              Formato Institucional PM-DO-PEG-F066
+            </span>
+            <span class="text-xs text-emerald-100 font-medium">Departamento de Pedagogía</span>
+          </div>
+          <h2 class="text-base font-bold mt-1">Programa Institucional Monitores para la Docencia (PIM-D)</h2>
+          <p class="text-xs text-emerald-100/80">Tu registro digital en esta plataforma genera automáticamente el formato físico oficial requerido para legalizar tus horas.</p>
+        </div>
+        <button onclick="openOfficialFormatModal()" class="inline-flex items-center space-x-2 px-4 py-2 bg-white text-emerald-900 hover:bg-emerald-50 font-bold text-xs rounded-xl shadow transition whitespace-nowrap">
+          <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
+          <span>Ver Planilla PM-DO-PEG-F066</span>
+        </button>
+      </div>
+
       <!-- Tarjeta de Progreso 54 Horas -->
       <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -95,13 +131,13 @@
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
-                  Requisito Institucional USB
+                  Requisito Reglamentario
                 </span>
                 <span id="statusBadge" class="inline-flex items-center text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/50">
                   <i data-lucide="clock" class="w-3.5 h-3.5 mr-1"></i> En Progreso
                 </span>
               </div>
-              <span class="text-xs font-semibold text-slate-500 font-mono">Meta Reglamentaria: 54 horas</span>
+              <span class="text-xs font-semibold text-slate-500 font-mono">Meta: 54 horas</span>
             </div>
 
             <div class="flex items-baseline space-x-3 mb-3">
@@ -162,7 +198,7 @@
           <div>
             <h3 class="text-lg font-bold text-slate-900">Historial y Trazabilidad de Monitorías</h3>
             <p class="text-xs text-slate-500">
-              Consulta tus sesiones registradas, valida tus horas y haz seguimiento a los estudiantes atendidos.
+              Consulta tus sesiones, valida tus horas y haz seguimiento a los estudiantes atendidos.
             </p>
           </div>
           <div class="flex items-center space-x-2">
@@ -172,7 +208,7 @@
             </button>
             <button onclick="openPazYSalvoModal()" class="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition">
               <i data-lucide="award" class="w-4 h-4"></i>
-              <span>Ver Certificado</span>
+              <span>Paz y Salvo 54h</span>
             </button>
             <button onclick="openNewSessionModal()" class="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-sm transition">
               <i data-lucide="plus" class="w-4 h-4"></i>
@@ -185,7 +221,7 @@
         <div class="p-4 bg-slate-50/70 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div class="relative">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-            <input type="text" id="filterSearch" placeholder="Buscar tema, notas o estudiante..." oninput="applyFilters()" class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <input type="text" id="filterSearch" placeholder="Buscar tema, lugar o estudiante..." oninput="applyFilters()" class="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
 
           <div>
@@ -224,10 +260,11 @@
             <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider">
               <tr>
                 <th class="py-3 px-4">Fecha y Horario</th>
-                <th class="py-3 px-4">Asignatura</th>
+                <th class="py-3 px-4">Curso / Asignatura</th>
+                <th class="py-3 px-4">Lugar</th>
                 <th class="py-3 px-4">Tema Desarrollado</th>
                 <th class="py-3 px-4 text-center">Modalidad</th>
-                <th class="py-3 px-4 text-center">Estudiantes</th>
+                <th class="py-3 px-4 text-center">Asistentes PIM-D</th>
                 <th class="py-3 px-4 text-center">Horas</th>
                 <th class="py-3 px-4 text-center">Estado</th>
                 <th class="py-3 px-4 text-right">Detalle</th>
@@ -242,12 +279,12 @@
         <!-- Pie de Tabla -->
         <div class="p-4 border-t border-slate-100 bg-slate-50/40 text-xs text-slate-500 flex justify-between items-center">
           <span id="tableSummaryCount">Mostrando 6 monitorías</span>
-          <span>Horas filtradas: <strong id="tableFilteredHours" class="text-slate-800 font-mono">38.0h</strong></span>
+          <span>Horas computadas: <strong id="tableFilteredHours" class="text-slate-800 font-mono">38.0h</strong></span>
         </div>
       </div>
     </div>
 
-    <!-- ==================== SECCIÓN 2: VISTA COORDINACIÓN ==================== -->
+    <!-- ==================== SECCIÓN 2: VISTA COORDINACIÓN PIM-D ==================== -->
     <div id="coordinatorView" class="space-y-6 hidden">
       <!-- Tarjetas Macro del Director -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -266,7 +303,7 @@
             <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
           </div>
           <p class="text-3xl font-extrabold text-slate-900 font-mono">317</p>
-          <p class="text-xs text-slate-500 mt-1">Estudiantes beneficiados</p>
+          <p class="text-xs text-slate-500 mt-1">Beneficiarios del PIM-D</p>
         </div>
 
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -292,12 +329,12 @@
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h3 class="text-lg font-bold text-slate-900">Matriz Consolidada de Monitores — Ingeniería de Sistemas</h3>
+            <h3 class="text-lg font-bold text-slate-900">Matriz Consolidada PIM-D — Ingeniería de Sistemas</h3>
             <p class="text-xs text-slate-500">Supervisión en tiempo real del progreso hacia las 54 horas por monitor activo.</p>
           </div>
-          <button onclick="alert('Exportando consolidado semestral en formato Excel institucional...')" class="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition">
+          <button onclick="alert('Exportando consolidado semestral en formato Excel para Pedagogía PIM-D...')" class="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition">
             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-            <span>Exportar Excel Director</span>
+            <span>Exportar Sábana PIM-D</span>
           </button>
         </div>
 
@@ -330,13 +367,13 @@
     </div>
   </main>
 
-  <!-- MODAL: REGISTRAR MONITORÍA (CAMPOS SIA + ASISTENTES) -->
+  <!-- MODAL: REGISTRAR MONITORÍA (CAMPOS SIA + FORMATO PIM-D) -->
   <div id="modalNewSession" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 my-8 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center pb-4 border-b border-slate-100">
         <div>
           <h3 class="text-lg font-bold text-slate-900">Registrar Nueva Monitoría</h3>
-          <p class="text-xs text-slate-500">Formulario homologado con los campos institucionales del SIA.</p>
+          <p class="text-xs text-slate-500">Homologado con SIA Institucional y Formato PIM-D (PM-DO-PEG-F066).</p>
         </div>
         <button onclick="closeNewSessionModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -368,7 +405,7 @@
           <strong id="liveHoursBadge" class="font-mono text-sm font-bold text-emerald-900">+2.00 horas</strong>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo: *</label>
             <select id="inpType" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
@@ -379,13 +416,17 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Asignatura: *</label>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Curso / Asignatura: *</label>
             <select id="inpSubject" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
               <option value="Bases de Datos I">Bases de Datos I</option>
               <option value="Estructuras de Datos">Estructuras de Datos</option>
               <option value="Programación Web y Móvil">Programación Web y Móvil</option>
               <option value="Algoritmos y Programación I">Algoritmos y Programación I</option>
             </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Lugar de la Monitoría: *</label>
+            <input type="text" id="inpLocation" required value="Sala de Cómputo 3" placeholder="Ej: Sala 3, Lab Redes, Virtual" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
         </div>
 
@@ -395,7 +436,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">URL Grabación (opcional):</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">URL Grabación (opcional si fue virtual):</label>
           <input type="url" id="inpUrl" placeholder="https://teams.microsoft.com/..." class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono">
         </div>
 
@@ -404,21 +445,45 @@
           <textarea id="inpObservation" required rows="2" placeholder="Describe las actividades y dudas resueltas..." class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"></textarea>
         </div>
 
-        <!-- Asistentes (Solución al vacío del SIA) -->
+        <!-- Asistentes PIM-D (Exacto Formato F066) -->
         <div class="border-t border-slate-100 pt-3">
-          <label class="block text-xs font-bold text-slate-800 mb-2">
-            Estudiantes Atendidos (<span id="attendeeCount">0</span>)
-          </label>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
-            <input type="text" id="attCard" placeholder="Cédula / Código" class="text-xs p-2 border border-slate-200 rounded-lg">
-            <input type="text" id="attName" placeholder="Nombre completo" class="text-xs p-2 border border-slate-200 rounded-lg">
-            <div class="flex space-x-1">
-              <input type="text" id="attCareer" value="Ing. Sistemas" placeholder="Carrera" class="w-full text-xs p-2 border border-slate-200 rounded-lg">
-              <button type="button" onclick="addAttendee()" class="px-3 py-2 bg-slate-800 text-white rounded-lg text-xs hover:bg-slate-700 flex items-center">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-              </button>
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-xs font-bold text-slate-800">
+              Estudiantes Asistentes — Formato PIM-D (<span id="attendeeCount">0</span>)
+            </label>
+            <span class="text-[10px] text-slate-400">Campos oficiales F066</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-2">
+            <div>
+              <input type="text" id="attCode" placeholder="Cód. Estudiante" class="w-full text-xs p-1.5 border border-slate-200 rounded-lg font-mono">
+            </div>
+            <div class="sm:col-span-2">
+              <input type="text" id="attName" placeholder="Nombres y Apellidos" class="w-full text-xs p-1.5 border border-slate-200 rounded-lg">
+            </div>
+            <div>
+              <div class="flex space-x-1">
+                <select id="attDocType" class="text-xs p-1.5 border border-slate-200 rounded-lg">
+                  <option value="CC">CC</option>
+                  <option value="TI">TI</option>
+                  <option value="CE">CE</option>
+                </select>
+                <input type="text" id="attDocNum" placeholder="N° Doc" class="w-full text-xs p-1.5 border border-slate-200 rounded-lg font-mono">
+              </div>
+            </div>
+            <div>
+              <div class="flex space-x-1">
+                <select id="attRefType" class="w-full text-xs p-1.5 border border-slate-200 rounded-lg">
+                  <option value="V">Voluntaria (V)</option>
+                  <option value="R">Remitido (R)</option>
+                </select>
+                <button type="button" onclick="addAttendee()" class="px-2.5 py-1.5 bg-slate-800 text-white rounded-lg text-xs hover:bg-slate-700 flex items-center">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                </button>
+              </div>
             </div>
           </div>
+
           <div id="attendeesListContainer" class="max-h-28 overflow-y-auto space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-200 text-xs empty:hidden"></div>
         </div>
 
@@ -435,8 +500,107 @@
     </div>
   </div>
 
+  <!-- MODAL: PLANILLA OFICIAL PIM-D (PM-DO-PEG-F066) -->
+  <div id="modalOfficialFormat" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-5xl w-full p-6 shadow-2xl border border-slate-200 my-8 max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex justify-between items-center pb-3 border-b border-slate-200 no-print">
+        <div class="flex items-center space-x-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+          <h3 class="text-sm font-bold text-slate-900">Vista de Impresión: Formato Institucional PM-DO-PEG-F066</h3>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="window.print()" class="px-3.5 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl flex items-center space-x-1.5 shadow-sm">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Imprimir Formato</span>
+          </button>
+          <button onclick="closeOfficialFormatModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- FORMATO IMPRIMIBLE OFICIAL PIM-D (RÉPLICA EXACTA DE LA IMAGEN) -->
+      <div id="printContainer" class="mt-4 border border-slate-400 bg-white p-3 text-[10px] leading-tight">
+        
+        <!-- Encabezado Institucional F066 -->
+        <table class="w-full border-collapse border border-black mb-1">
+          <tr>
+            <td rowspan="3" class="w-24 border border-black text-center p-1">
+              <div class="font-bold text-emerald-800 text-xs">UNIVERSIDAD<br>SIMÓN BOLÍVAR</div>
+            </td>
+            <td class="border border-black text-center font-bold text-[11px] py-1">
+              UNIVERSIDAD SIMÓN BOLÍVAR - Sede Cúcuta<br>
+              DEPARTAMENTO DE PEDAGOGÍA
+            </td>
+            <td class="w-36 border border-black text-center font-bold text-[9px] p-1">
+              PM-DO-PEG-F066<br>
+              Versión: 1.0
+            </td>
+          </tr>
+          <tr>
+            <td class="border border-black text-center font-bold py-1 bg-slate-50">
+              PROGRAMA INSTITUCIONAL MONITORES PARA LA DOCENCIA (PIM-D)
+            </td>
+            <td rowspan="2" class="border border-black text-center text-[9px] p-1">
+              Página 1 de 1
+            </td>
+          </tr>
+          <tr>
+            <td class="border border-black text-center font-bold py-1">
+              Reporte de Monitorías Académicas
+            </td>
+          </tr>
+        </table>
+
+        <div class="border border-black text-center font-bold bg-slate-100 py-0.5 mb-1 text-[9px]">
+          Coordinación PIM-D • Monitor: Johan Sebastian Rojas Gómez (MONITOR18) • Periodo: 2026-2
+        </div>
+
+        <!-- Tabla con las 12 Columnas Oficiales del Formato -->
+        <table class="w-full border-collapse border border-black text-center text-[9px]">
+          <thead class="bg-slate-100 font-bold">
+            <tr>
+              <th class="border border-black p-1 w-6">ITEM</th>
+              <th class="border border-black p-1 w-20">CÓDIGO DEL ESTUDIANTE</th>
+              <th class="border border-black p-1">NOMBRES Y APELLIDOS</th>
+              <th class="border border-black p-1 w-14">TIPO DOC (CC, TI)</th>
+              <th class="border border-black p-1 w-20">NÚMERO DE DOCUMENTO</th>
+              <th class="border border-black p-1 w-16">REMITIDO (R) O VOLUNTARIA (V)</th>
+              <th class="border border-black p-1 w-24">CURSO</th>
+              <th class="border border-black p-1 w-16">FECHA</th>
+              <th class="border border-black p-1 w-14">HORA DE INICIO</th>
+              <th class="border border-black p-1 w-14">HORA FINAL</th>
+              <th class="border border-black p-1 w-24">LUGAR DE LA MONITORIA</th>
+              <th class="border border-black p-1 w-20">FIRMA DEL ESTUDIANTE</th>
+            </tr>
+          </thead>
+          <tbody id="printTableBody">
+            <!-- Rellenado dinámico con las filas de estudiantes -->
+          </tbody>
+        </table>
+
+        <!-- Firmas al pie -->
+        <div class="grid grid-cols-2 gap-8 mt-6 pt-4 border-t border-slate-300 text-center text-[10px]">
+          <div>
+            <div class="w-48 border-b border-black mx-auto mb-1"></div>
+            <p class="font-bold">Firma del Monitor Académico</p>
+            <p class="text-[9px] text-slate-500">Johan Sebastian Rojas Gómez (MONITOR18)</p>
+          </div>
+          <div>
+            <div class="w-48 border-b border-black mx-auto mb-1"></div>
+            <p class="font-bold">Vo.Bo. Coordinación PIM-D / Docente Titular</p>
+            <p class="text-[9px] text-slate-500">Departamento de Pedagogía USB</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
   <!-- MODAL: IMPORTAR EXCEL SIA -->
-  <div id="modalImportSia" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div id="modalImportSia" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex justify-between items-center pb-3 border-b border-slate-100">
         <div>
@@ -457,15 +621,12 @@
             Subir y Procesar Archivo
           </button>
         </div>
-        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-[11px] text-slate-500">
-          <strong>Validación automática:</strong> Calcula horas por fila, identifica asignaturas y descarta duplicados si el registro ya existe en el sistema.
-        </div>
       </div>
     </div>
   </div>
 
   <!-- MODAL: CERTIFICADO PAZ Y SALVO (PDF SIMULATOR) -->
-  <div id="modalPazYSalvo" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div id="modalPazYSalvo" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
     <div class="bg-white rounded-2xl max-w-xl w-full p-8 shadow-2xl border border-slate-200">
       <div class="flex justify-between items-center pb-4 border-b border-slate-100">
         <div class="flex items-center space-x-2">
@@ -479,7 +640,7 @@
 
       <div class="mt-6 border-4 border-double border-emerald-900/30 p-6 rounded-xl bg-emerald-50/20 text-center space-y-3">
         <h4 class="font-extrabold text-sm text-slate-900 tracking-wide uppercase">Universidad Simón Bolívar</h4>
-        <p class="text-xs text-slate-500 font-serif">Facultad de Ingenierías — Programa de Ingeniería de Sistemas</p>
+        <p class="text-xs text-slate-500 font-serif">Facultad de Ingenierías — Departamento de Pedagogía (PIM-D)</p>
         
         <div class="my-4 py-3 border-t border-b border-slate-200">
           <p class="text-xs text-slate-600">Certifica que el estudiante monitor:</p>
@@ -509,13 +670,13 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 no-print">
     Proyecto Final de Ingeniería de Sistemas — Universidad Simón Bolívar (Cúcuta) © 2026.
   </footer>
 
   <!-- SCRIPT DE COMPORTAMIENTO INTERACTIVO -->
   <script>
-    // Estado en Memoria de Sesiones (del autor MONITOR18)
+    // Sesiones del Monitor (incluyendo datos homologados con PIM-D Formato PM-DO-PEG-F066)
     let sessions = [
       {
         id: '1',
@@ -525,14 +686,15 @@
         hours: 2.0,
         subject: 'Bases de Datos I',
         type: 'Taller',
+        location: 'Sala de Cómputo 3',
         topic: 'Consultas SQL Complejas (JOINs, GROUP BY, HAVING) y Subconsultas',
-        observation: 'Taller práctico con 4 estudiantes resolviendo el laboratorio 3 de la cátedra.',
+        observation: 'Taller práctico con 4 estudiantes resolviendo el laboratorio 3.',
         status: 'APROBADO',
         attendees: [
-          { name: 'Brayhan Alejandro Gómez Vega', card: '1090123456' },
-          { name: 'Valeria Barbosa', card: '1090789012' },
-          { name: 'Juan Camilo Pérez', card: '1090345678' },
-          { name: 'María Fernanda Ruiz', card: '1090901234' }
+          { code: '10901234', name: 'Brayhan Alejandro Gómez Vega', docType: 'CC', docNum: '1090123456', refType: 'V' },
+          { code: '10907890', name: 'Valeria Barbosa', docType: 'CC', docNum: '1090789012', refType: 'V' },
+          { code: '10903456', name: 'Juan Camilo Pérez', docType: 'TI', docNum: '1090345678', refType: 'R' },
+          { code: '10909012', name: 'María Fernanda Ruiz', docType: 'CC', docNum: '1090901234', refType: 'V' }
         ]
       },
       {
@@ -543,12 +705,13 @@
         hours: 2.0,
         subject: 'Estructuras de Datos',
         type: 'Presencial',
+        location: 'Laboratorio de Software 1',
         topic: 'Implementación de Grafos, BFS y Algoritmo de Dijkstra',
-        observation: 'Explicación en pizarra de la representación de grafos y recorridos en anchura.',
+        observation: 'Explicación en pizarra de la representación de grafos y recorridos.',
         status: 'APROBADO',
         attendees: [
-          { name: 'Carlos Mario Peña', card: '1090567890' },
-          { name: 'Diana Marcela Torres', card: '1090678901' }
+          { code: '10905678', name: 'Carlos Mario Peña', docType: 'CC', docNum: '1090567890', refType: 'V' },
+          { code: '10906789', name: 'Diana Marcela Torres', docType: 'CC', docNum: '1090678901', refType: 'R' }
         ]
       },
       {
@@ -559,12 +722,13 @@
         hours: 2.0,
         subject: 'Programación Web y Móvil',
         type: 'Virtual',
+        location: 'Virtual - Teams',
         topic: 'Clean Architecture y Estado Global en React con Context API',
-        observation: 'Sesión virtual grabada en Teams resolviendo dudas del proyecto.',
+        observation: 'Sesión virtual grabada resolviendo dudas del proyecto.',
         recordingUrl: 'https://teams.microsoft.com/recordings/sesion-react-2026',
         status: 'APROBADO',
         attendees: [
-          { name: 'Brayhan Alejandro Gómez Vega', card: '1090123456' }
+          { code: '10901234', name: 'Brayhan Alejandro Gómez Vega', docType: 'CC', docNum: '1090123456', refType: 'V' }
         ]
       },
       {
@@ -575,11 +739,12 @@
         hours: 4.0,
         subject: 'Algoritmos y Programación I',
         type: 'Asesoría',
+        location: 'Sala de Estudio Biblioteca',
         topic: 'Estructuras de Control Repetitivas (While, For) y Arreglos',
-        observation: 'Asesoría individual previa al primer parcial con estudiantes de primer semestre.',
+        observation: 'Asesoría individual previa al primer parcial.',
         status: 'APROBADO',
         attendees: [
-          { name: 'Andrés Felipe Castro', card: '1090888999' }
+          { code: '10908889', name: 'Andrés Felipe Castro', docType: 'TI', docNum: '1090888999', refType: 'R' }
         ]
       },
       {
@@ -590,6 +755,7 @@
         hours: 4.0,
         subject: 'Bases de Datos I',
         type: 'Taller',
+        location: 'Sala de Cómputo 2',
         topic: 'Modelo Entidad-Relación y Conversión al Modelo Relacional',
         observation: 'Taller práctico intensivo previo a sustentación.',
         status: 'APROBADO',
@@ -603,6 +769,7 @@
         hours: 2.0,
         subject: 'Estructuras de Datos',
         type: 'Presencial',
+        location: 'Laboratorio de Software 1',
         topic: 'Listas Enlazadas Simples y Dobles en C++',
         observation: 'Implementación de punteros y memoria dinámica.',
         status: 'APROBADO',
@@ -610,7 +777,6 @@
       }
     ];
 
-    // Los 20 Monitores Reales del Caso de Negocio (Pág. 4)
     const allMonitors = [
       { code: 'MONITOR18', name: 'Johan Sebastian Rojas Gómez', hours: 38, students: 24, target: 54 },
       { code: 'MONITOR1', name: 'Estudiante MONITOR1', hours: 36, students: 17, target: 54 },
@@ -636,7 +802,6 @@
 
     let currentAttendees = [];
 
-    // Inicialización
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('inpDate').value = new Date().toISOString().split('T')[0];
       recalculateProgress();
@@ -645,7 +810,6 @@
       lucide.createIcons();
     });
 
-    // Conmutador de Rol (Monitor vs Coordinación)
     function switchRole(role) {
       const isMonitor = role === 'MONITOR';
       document.getElementById('monitorView').classList.toggle('hidden', !isMonitor);
@@ -670,7 +834,6 @@
       lucide.createIcons();
     }
 
-    // Recalcular barra de 54 horas y métricas
     function recalculateProgress() {
       const target = 54;
       const accumulated = sessions
@@ -705,13 +868,12 @@
       lucide.createIcons();
     }
 
-    // Renderizar tabla de historial de sesiones
     function renderSessions(list) {
       const tbody = document.getElementById('sessionsTableBody');
       if (list.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" class="py-12 text-center text-slate-400">
+            <td colspan="9" class="py-12 text-center text-slate-400">
               <p class="font-medium">No se encontraron monitorías con los filtros seleccionados.</p>
               <p class="text-[11px] mt-1">Prueba cambiando los criterios de búsqueda.</p>
             </td>
@@ -727,6 +889,11 @@
             <div class="text-[11px] text-slate-400 font-mono">${s.startTime} - ${s.endTime}</div>
           </td>
           <td class="py-3 px-4 whitespace-nowrap font-medium text-slate-700">${s.subject}</td>
+          <td class="py-3 px-4 whitespace-nowrap text-slate-600 font-medium">
+            <span class="inline-flex items-center text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-700">
+              <i data-lucide="map-pin" class="w-3 h-3 mr-1 text-slate-400"></i> ${s.location || 'Campus'}
+            </span>
+          </td>
           <td class="py-3 px-4 max-w-xs truncate text-slate-800" title="${s.topic}">${s.topic}</td>
           <td class="py-3 px-4 text-center whitespace-nowrap">
             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700">${s.type}</span>
@@ -749,7 +916,7 @@
           </td>
         </tr>
         <tr id="detail-${s.id}" class="bg-slate-50/60 hidden">
-          <td colspan="8" class="p-4 border-t border-b border-slate-100">
+          <td colspan="9" class="p-4 border-t border-b border-slate-100">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div>
                 <p class="font-semibold text-slate-700 mb-1">Observaciones registradas:</p>
@@ -762,12 +929,20 @@
                 ` : ''}
               </div>
               <div>
-                <p class="font-semibold text-slate-700 mb-1">Estudiantes asistentes (${s.attendees ? s.attendees.length : 0}):</p>
-                <div class="bg-white p-2 rounded-lg border border-slate-200 max-h-24 overflow-y-auto space-y-1">
+                <p class="font-semibold text-slate-700 mb-1">Estudiantes PIM-D (${s.attendees ? s.attendees.length : 0}):</p>
+                <div class="bg-white p-2 rounded-lg border border-slate-200 max-h-28 overflow-y-auto space-y-1">
                   ${s.attendees && s.attendees.length > 0 ? s.attendees.map(a => `
-                    <div class="flex justify-between text-slate-600 text-[11px]">
-                      <span>${a.name}</span>
-                      <span class="font-mono text-slate-400">${a.card}</span>
+                    <div class="flex justify-between items-center text-slate-600 text-[11px] border-b border-slate-50 pb-1">
+                      <div>
+                        <span class="font-semibold text-slate-800">${a.name}</span>
+                        <span class="text-[10px] text-slate-400 ml-1 font-mono">(Cód: ${a.code || '-'})</span>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <span class="font-mono text-slate-500">${a.docType || 'CC'} ${a.docNum || '-'}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${a.refType === 'R' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+                          ${a.refType === 'R' ? 'Remitido' : 'Voluntario'}
+                        </span>
+                      </div>
                     </div>
                   `).join('') : '<p class="text-slate-400 italic">No se asociaron estudiantes individualmente.</p>'}
                 </div>
@@ -796,7 +971,6 @@
       lucide.createIcons();
     }
 
-    // Filtros de búsqueda en tiempo real
     function applyFilters() {
       const search = document.getElementById('filterSearch').value.toLowerCase();
       const subject = document.getElementById('filterSubject').value;
@@ -807,7 +981,8 @@
         const matchSearch = search === '' ||
           s.topic.toLowerCase().includes(search) ||
           s.observation.toLowerCase().includes(search) ||
-          (s.attendees && s.attendees.some(a => a.name.toLowerCase().includes(search) || a.card.includes(search)));
+          (s.location && s.location.toLowerCase().includes(search)) ||
+          (s.attendees && s.attendees.some(a => a.name.toLowerCase().includes(search) || (a.docNum && a.docNum.includes(search))));
 
         const matchSubject = subject === 'ALL' || s.subject === subject;
         const matchType = type === 'ALL' || s.type === type;
@@ -819,7 +994,6 @@
       renderSessions(filtered);
     }
 
-    // Renderizar Matriz de 20 Monitores para Coordinador
     function renderMonitorsTable(monitors) {
       const tbody = document.getElementById('monitorsTableBody');
       tbody.innerHTML = monitors.map(m => {
@@ -897,13 +1071,21 @@
     }
 
     function addAttendee() {
-      const card = document.getElementById('attCard').value.trim();
+      const code = document.getElementById('attCode').value.trim();
       const name = document.getElementById('attName').value.trim();
-      const career = document.getElementById('attCareer').value.trim();
-      if (!card || !name) return;
-      currentAttendees.push({ card, name, career });
-      document.getElementById('attCard').value = '';
+      const docType = document.getElementById('attDocType').value;
+      const docNum = document.getElementById('attDocNum').value.trim();
+      const refType = document.getElementById('attRefType').value;
+
+      if (!name || !docNum) {
+        alert('Por favor ingrese al menos el nombre y número de documento del estudiante.');
+        return;
+      }
+
+      currentAttendees.push({ code, name, docType, docNum, refType });
+      document.getElementById('attCode').value = '';
       document.getElementById('attName').value = '';
+      document.getElementById('attDocNum').value = '';
       renderAttendeesList();
     }
 
@@ -917,9 +1099,14 @@
       document.getElementById('attendeeCount').textContent = currentAttendees.length;
       container.innerHTML = currentAttendees.map((a, i) => `
         <div class="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-200">
-          <span class="font-medium text-slate-700">${a.name} (${a.career})</span>
+          <div>
+            <span class="font-medium text-slate-800">${a.name}</span>
+            <span class="text-[10px] text-slate-400 font-mono">(${a.docType}: ${a.docNum})</span>
+          </div>
           <div class="flex items-center space-x-2">
-            <span class="font-mono text-slate-400 text-[11px]">${a.card}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${a.refType === 'R' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+              ${a.refType === 'R' ? 'Remitido' : 'Voluntario'}
+            </span>
             <button type="button" onclick="removeAttendee(${i})" class="text-rose-500 hover:text-rose-700">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
@@ -936,6 +1123,7 @@
       const endTime = document.getElementById('inpEndTime').value;
       const type = document.getElementById('inpType').value;
       const subject = document.getElementById('inpSubject').value;
+      const location = document.getElementById('inpLocation').value;
       const topic = document.getElementById('inpTopic').value;
       const recordingUrl = document.getElementById('inpUrl').value;
       const observation = document.getElementById('inpObservation').value;
@@ -957,6 +1145,7 @@
         hours,
         subject,
         type,
+        location,
         topic,
         recordingUrl: recordingUrl || undefined,
         observation,
@@ -971,7 +1160,87 @@
       alert(`¡Sesión guardada con éxito! Se han computado +${hours}h a tu meta de 54 horas.`);
     }
 
-    // Modal Importar SIA
+    // Modal Formato Oficial PIM-D (PM-DO-PEG-F066)
+    function openOfficialFormatModal() {
+      renderOfficialPrintRows();
+      document.getElementById('modalOfficialFormat').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeOfficialFormatModal() {
+      document.getElementById('modalOfficialFormat').classList.add('hidden');
+    }
+
+    function renderOfficialPrintRows() {
+      const tbody = document.getElementById('printTableBody');
+      const rows = [];
+      let item = 1;
+
+      sessions.forEach(sess => {
+        if (sess.attendees && sess.attendees.length > 0) {
+          sess.attendees.forEach(att => {
+            rows.push({
+              item: item++,
+              studentCode: att.code || '-',
+              studentName: att.name,
+              docType: att.docType || 'CC',
+              docNum: att.docNum || '-',
+              refType: att.refType || 'V',
+              course: sess.subject,
+              date: sess.date,
+              start: sess.startTime,
+              end: sess.endTime,
+              location: sess.location || 'Sala de Cómputo'
+            });
+          });
+        }
+      });
+
+      const totalRowsToShow = Math.max(15, rows.length);
+      let html = '';
+
+      for (let i = 0; i < totalRowsToShow; i++) {
+        const r = rows[i];
+        if (r) {
+          html += `
+            <tr class="h-6">
+              <td class="border border-black font-mono">${r.item}</td>
+              <td class="border border-black font-mono">${r.studentCode}</td>
+              <td class="border border-black text-left px-1 font-semibold">${r.studentName}</td>
+              <td class="border border-black">${r.docType}</td>
+              <td class="border border-black font-mono">${r.docNum}</td>
+              <td class="border border-black font-bold">${r.refType}</td>
+              <td class="border border-black">${r.course}</td>
+              <td class="border border-black font-mono">${r.date}</td>
+              <td class="border border-black font-mono">${r.start}</td>
+              <td class="border border-black font-mono">${r.end}</td>
+              <td class="border border-black text-left px-1">${r.location}</td>
+              <td class="border border-black text-[8px] text-slate-300 italic font-mono">Firma digital ✓</td>
+            </tr>
+          `;
+        } else {
+          html += `
+            <tr class="h-6">
+              <td class="border border-black font-mono text-slate-300">${i + 1}</td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+              <td class="border border-black"></td>
+            </tr>
+          `;
+        }
+      }
+
+      tbody.innerHTML = html;
+    }
+
     function openImportModal() {
       document.getElementById('modalImportSia').classList.remove('hidden');
     }
@@ -983,7 +1252,6 @@
       alert('Sincronizando sábana de datos del SIA institucional...\n✓ 8 sesiones históricas importadas.\n✓ 0 duplicados encontrados.\n✓ Horas acumuladas actualizadas.');
     }
 
-    // Modal Paz y Salvo
     function openPazYSalvoModal() {
       document.getElementById('modalPazYSalvo').classList.remove('hidden');
       lucide.createIcons();
