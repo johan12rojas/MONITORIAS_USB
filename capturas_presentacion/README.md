@@ -8,6 +8,8 @@ Esta carpeta contiene todas las capturas de pantalla de la plataforma **Sistema 
 
 | Archivo | Dimensión | Apartado del Sistema | Diapositiva Sugerida | Puntos Clave de Sustentación |
 | :--- | :---: | :--- | :---: | :--- |
+| `00_portada_hero_institucional.png` | 1600×1820 | **Composición Portada Oficial (Sin IA)** | **Diapositiva 1** | Logos oficiales Unisimon y PIM-D, mockup real del navegador con la URL institucional y pastillas de metadatos. Sustituye la ilustración 3D de IA. |
+| `00_problema_sabana_manual_real.png` | 1600×1045 | **Composición Problema / Sábana Manual (Sin IA)** | **Diapositiva 2** | Sábana Excel manual con discrepancias reales (+4h), alertas del diagnóstico (55% consolidado) y cuello de botella. Sustituye el post-it cartoon de IA. |
 | `01_login_monitor.png` | 3200×1800 | Portal de Inicio de Sesión — Pestaña Monitor | Diapositiva 4 o Demo | Acceso institucional con código (`MONITOR18`) o correo `@unisimon.edu.co`. Estética formal tipo portal Unisimon. |
 | `02_login_director.png` | 3200×1800 | Portal de Inicio de Sesión — Pestaña Director | Diapositiva 4 o Demo | Acceso administrativo docente (`Admin` / `DOC-1001`). Segregación estricta de credenciales y roles RBAC. |
 | `03_monitor_panel_progreso_54h_e_historial.png` | 3200×1800 | **Dashboard del Monitor: Meta 54h e Historial** | **Diapositiva 11** | Barra de progreso reglamentario (ej. 33.3% / 70.3%), contador de alumnos, sesiones, tabla histórica con filtros de materia y estado. |
@@ -26,6 +28,7 @@ Esta carpeta contiene todas las capturas de pantalla de la plataforma **Sistema 
 | `11b_director_gestion_usuarios_tabla_completa.png` | 3200×1800 | Recorte de tabla CRUD administrativa | Diapositiva 9 o 12 | Control total de cuentas adscritas al periodo 2026-2. |
 | `12_director_modal_crear_usuario.png` | 3200×1800 | Modal: Crear Nuevo Usuario Institucional | Demo en vivo | Alta de nuevos monitores o docentes con validación de código y meta horaria. |
 | `13_director_bitacora_auditoria.png` | 3200×1800 | **Bitácora Inmutable de Auditoría** | Diapositiva 9 o 14 | Registro inmutable de acciones críticas (conciliaciones, registros, deshabilitaciones) con marca temporal estricta. |
+| `14_cierre_institucional_hero.png` | 1600×1400 | **Composición Cierre / Agradecimientos (Sin IA)** | **Diapositiva 16** | Logos oficiales, vista del Certificado de Paz y Salvo oficial alcanzado y créditos académicos de la facultad. Sustituye la ilustración de IA final. |
 
 ---
 
