@@ -78,9 +78,9 @@
 <body class="min-h-screen text-slate-800 flex flex-col">
 
   <!-- ==================== PANTALLA 1: PORTAL DE INICIO DE SESIÓN INSTITUCIONAL ==================== -->
-  <!-- Rediseño fiel a la estética del portal Unisimon / Microsoft SIA (sin colores pastel ni burbujas IA) -->
-  <div id="loginScreen" class="min-h-screen flex flex-col justify-center items-center p-4 bg-[#f4f6f8]">
-    <div class="max-w-md w-full bg-white rounded-md border border-slate-300 shadow-sm p-8">
+  <!-- Rediseño fiel a la estética del portal Unisimon / Microsoft SIA con imagen institucional suave de fondo -->
+  <div id="loginScreen" class="min-h-screen flex flex-col justify-center items-center p-4 bg-[#f4f6f8]" style="background-image: linear-gradient(rgba(244, 246, 248, 0.78), rgba(244, 246, 248, 0.88)), url('/login-bg.jpg'); background-size: cover; background-position: center;">
+    <div class="max-w-md w-full bg-white/95 backdrop-blur-sm rounded-md border border-slate-300 shadow-md p-8">
       
       <!-- Encabezado con Logos Institucionales -->
       <div class="flex items-center justify-between pb-6 border-b border-slate-200">
@@ -117,7 +117,17 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña:</label>
-          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded focus:border-[#007336] focus:outline-none focus:ring-1 focus:ring-[#007336] font-mono">
+          <div class="relative">
+            <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full text-xs pl-3 pr-9 py-2 bg-white border border-slate-300 rounded focus:border-[#007336] focus:outline-none focus:ring-1 focus:ring-[#007336] font-mono">
+            <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700" aria-label="Mostrar u ocultar contraseña">
+              <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="loginErrorBox" class="hidden p-2.5 bg-rose-50 border border-rose-300 rounded text-[11px] text-rose-800 flex items-start space-x-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5 text-rose-700"></i>
+          <span id="loginErrorText"></span>
         </div>
 
         <button type="submit" class="w-full py-2.5 bg-[#007336] hover:bg-[#005025] text-white font-semibold text-xs rounded transition flex items-center justify-center space-x-1.5 shadow-none mt-2">
@@ -126,11 +136,16 @@
         </button>
 
         <!-- Cuadro Informativo Institucional de Credenciales -->
-        <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded text-[11px] text-slate-600 space-y-1">
-          <p class="font-bold text-slate-800 flex items-center space-x-1">
-            <i data-lucide="info" class="w-3.5 h-3.5 text-[#007336]"></i>
-            <span>Credenciales Autorizadas del Periodo 2026-2:</span>
-          </p>
+        <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded text-[11px] text-slate-600 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <p class="font-bold text-slate-800 flex items-center space-x-1">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-[#007336]"></i>
+              <span>Credenciales Autorizadas del Periodo 2026-2:</span>
+            </p>
+            <button type="button" onclick="fillDemoCredentials()" class="text-[10px] font-bold text-[#007336] hover:underline">
+              Autocompletar
+            </button>
+          </div>
           <p id="credentialHint" class="leading-relaxed">
             • <strong>Monitor:</strong> Usuario <code class="bg-white px-1.5 py-0.5 border border-slate-300 rounded text-slate-800 font-mono">MONITOR18</code> | Contraseña: <code class="bg-white px-1.5 py-0.5 border border-slate-300 rounded text-slate-800 font-mono">admin</code>
           </p>
@@ -255,7 +270,11 @@
             </button>
           </div>
 
-          <div class="flex items-center space-x-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="exportMonitorSessionsCsv()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 rounded flex items-center space-x-1.5 transition" title="Descargar planilla oficial en Excel (.xls) con logo institucional">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-[#007336]"></i>
+              <span>Exportar Excel Oficial</span>
+            </button>
             <button onclick="openOfficialFormatModal()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 rounded flex items-center space-x-1.5 transition">
               <i data-lucide="printer" class="w-3.5 h-3.5 text-[#007336]"></i>
               <span>Planilla Oficial PM-DO-PEG-F066</span>
@@ -269,6 +288,9 @@
 
         <!-- ==================== SUB-PESTAÑA 1: HISTORIAL DE MONITORÍAS (TABLA SIA) ==================== -->
         <div id="subMonitorHistorial" class="space-y-4">
+          <!-- Resumen Compacto por Asignatura -->
+          <div id="monitorSubjectsSummary" class="bg-white rounded-md border border-slate-300 px-4 py-2.5 flex flex-wrap items-center gap-2 text-xs"></div>
+
           <div class="bg-white rounded-md border border-slate-300 shadow-none overflow-hidden">
             
             <!-- Barra de Filtros Sobria -->
@@ -344,15 +366,23 @@
             
             <!-- Calendario Mensual Interactivo (2 Columnas) -->
             <div class="lg:col-span-2 bg-white rounded-md border border-slate-300 p-4">
-              <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
-                <div class="flex items-center space-x-2">
-                  <h3 id="calCurrentMonthLabel" class="text-base font-bold text-slate-800">Noviembre 2026</h3>
-                  <button onclick="goToCurrentCalendarMonth()" class="text-[11px] px-2 py-0.5 border border-slate-300 rounded hover:bg-slate-50 text-slate-600">Hoy</button>
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 mb-3">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <h3 id="calCurrentMonthLabel" class="text-base font-bold text-slate-800">Noviembre 2026</h3>
+                    <button onclick="goToCurrentCalendarMonth()" class="text-[11px] px-2 py-0.5 border border-slate-300 rounded hover:bg-slate-50 text-slate-600">Hoy</button>
+                  </div>
+                  <p id="calMonthHoursSummary" class="text-[11px] text-slate-500 font-mono mt-0.5">Mes: 0.0h ejecutadas • 0.0h programadas</p>
                 </div>
-                <div class="flex items-center space-x-1">
-                  <button onclick="prevCalendarMonth()" class="p-1 border border-slate-300 rounded hover:bg-slate-50 text-slate-600"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                  <button onclick="nextCalendarMonth()" class="p-1 border border-slate-300 rounded hover:bg-slate-50 text-slate-600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-                  <button onclick="openScheduleSessionModal()" class="ml-2 px-3 py-1 bg-[#007336] hover:bg-[#005025] text-white text-xs font-semibold rounded flex items-center space-x-1">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <select id="calFilterMode" onchange="renderCalendar()" class="text-[11px] py-1 px-2 border border-slate-300 rounded bg-white text-slate-700 focus:border-[#007336] focus:outline-none">
+                    <option value="ALL">Ver: Todas</option>
+                    <option value="PROGRAMADA">Solo Programadas</option>
+                    <option value="CUMPLIDA">Solo Cumplidas</option>
+                  </select>
+                  <button onclick="prevCalendarMonth()" class="p-1 border border-slate-300 rounded hover:bg-slate-50 text-slate-600" aria-label="Mes anterior"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                  <button onclick="nextCalendarMonth()" class="p-1 border border-slate-300 rounded hover:bg-slate-50 text-slate-600" aria-label="Mes siguiente"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                  <button onclick="openScheduleSessionModal()" class="ml-1 px-3 py-1 bg-[#007336] hover:bg-[#005025] text-white text-xs font-semibold rounded flex items-center space-x-1">
                     <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
                     <span>+ Programar</span>
                   </button>
@@ -384,9 +414,25 @@
               </div>
             </div>
 
-            <!-- Panel Lateral: Sesiones del Día y Próximas Monitorías -->
+            <!-- Panel Lateral: Agenda del Día Seleccionado y Próximas Monitorías -->
             <div class="space-y-4">
               
+              <!-- Tarjeta: Agenda del Día Seleccionado -->
+              <div id="selectedDayAgendaCard" class="bg-white rounded-md border border-slate-300 p-4">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-3">
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#007336]"></i>
+                    <span>Agenda: <span id="selectedDayLabel" class="font-mono text-[#007336]">Hoy</span></span>
+                  </h4>
+                  <button type="button" onclick="openScheduleForSelectedDay()" class="text-[11px] font-semibold text-[#007336] hover:underline">
+                    + Agendar aquí
+                  </button>
+                </div>
+                <div id="selectedDayAgendaList" class="space-y-2 text-xs text-slate-500">
+                  Haz clic en cualquier día del calendario para ver sus sesiones o agendar una nueva.
+                </div>
+              </div>
+
               <!-- Tarjeta de Acción Rápida: Sesiones Próximas Programadas -->
               <div class="bg-white rounded-md border border-slate-300 p-4">
                 <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-3">
@@ -465,49 +511,64 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div class="bg-white p-4 rounded-md border border-slate-300 border-l-4 border-l-[#007336]">
               <span class="text-[11px] font-semibold text-slate-500 uppercase block">Horas Acumuladas</span>
-              <div class="text-2xl font-bold text-slate-900 font-mono mt-0.5">698.0h</div>
-              <span class="text-[10px] text-slate-500">Total en 20 monitores activos</span>
+              <div id="kpiDirTotalHours" class="text-2xl font-bold text-slate-900 font-mono mt-0.5">698.0h</div>
+              <span id="kpiDirTotalMonitorsSub" class="text-[10px] text-slate-500">Total en monitores activos</span>
             </div>
 
             <div class="bg-white p-4 rounded-md border border-slate-300 border-l-4 border-l-blue-600">
-              <span class="text-[11px] font-semibold text-slate-500 uppercase block">Estudiantes Atendidos</span>
-              <div class="text-2xl font-bold text-slate-900 font-mono mt-0.5">317</div>
-              <span class="text-[10px] text-slate-500">Impacto docente en periodo 2026-2</span>
+              <span class="text-[11px] font-semibold text-slate-500 uppercase block">En Riesgo (&lt;20h)</span>
+              <div id="kpiDirAtRisk" class="text-2xl font-bold text-slate-900 font-mono mt-0.5">0</div>
+              <span class="text-[10px] text-slate-500">Monitores con bajo avance</span>
             </div>
 
             <div class="bg-white p-4 rounded-md border border-slate-300 border-l-4 border-l-amber-600">
               <span class="text-[11px] font-semibold text-slate-500 uppercase block">Requisito Cumplido</span>
-              <div class="text-2xl font-bold text-slate-900 font-mono mt-0.5">6 <span class="text-sm text-slate-400 font-normal">/ 20</span></div>
-              <span class="text-[10px] text-slate-500">30% de monitores alcanzaron 54h</span>
+              <div id="kpiDirCompleted" class="text-2xl font-bold text-slate-900 font-mono mt-0.5">6 <span class="text-sm text-slate-400 font-normal">/ 17</span></div>
+              <span id="kpiDirCompletedSub" class="text-[10px] text-slate-500">Alcanzaron su meta de horas</span>
             </div>
 
             <div class="bg-white p-4 rounded-md border border-slate-300 border-l-4 border-l-slate-700">
               <span class="text-[11px] font-semibold text-slate-500 uppercase block">Avance Global</span>
-              <div class="text-2xl font-bold text-slate-900 font-mono mt-0.5">68.4%</div>
+              <div id="kpiDirAvgProgress" class="text-2xl font-bold text-slate-900 font-mono mt-0.5">68.4%</div>
               <span class="text-[10px] text-slate-500">Cumplimiento promedio del programa</span>
             </div>
           </div>
 
           <!-- Tabla de Progreso Individual hacia 54h -->
           <div class="bg-white rounded-md border border-slate-300 shadow-none overflow-hidden">
-            <div class="p-3 bg-slate-100 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div class="relative max-w-sm w-full">
-                <input type="text" id="coordSearch" placeholder="Buscar por código (ej: MONITOR18) o nombre..." oninput="filterMonitorsTable()" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
-                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+            <div class="p-3 bg-slate-100 border-b border-slate-200 space-y-2.5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="relative max-w-sm w-full">
+                  <input type="text" id="coordSearch" placeholder="Buscar por código (ej: MONITOR18), @usuario o nombre..." oninput="filterMonitorsTable()" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
+                  <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button onclick="openAddUserModal()" class="px-3 py-1.5 bg-[#007336] hover:bg-[#005025] text-white text-xs font-semibold rounded flex items-center space-x-1.5">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                    <span>Nuevo Monitor</span>
+                  </button>
+                  <button onclick="exportMonitorsCsv()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 rounded flex items-center space-x-1.5">
+                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-[#007336]"></i>
+                    <span>Exportar Consolidado</span>
+                  </button>
+                </div>
               </div>
-              <button onclick="alert('Exportando informe institucional de horas a Excel oficial...')" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 rounded flex items-center space-x-1.5">
-                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-[#007336]"></i>
-                <span>Exportar Consolidado</span>
-              </button>
+              <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                <button onclick="setMonitorStatusFilter('ALL')" data-mon-filter="ALL" class="mon-filter-btn px-2.5 py-1 rounded font-semibold bg-slate-900 text-white">Todos</button>
+                <button onclick="setMonitorStatusFilter('CUMPLIDO')" data-mon-filter="CUMPLIDO" class="mon-filter-btn px-2.5 py-1 rounded font-semibold bg-white text-slate-600 border border-slate-300 hover:bg-slate-50">Cumplidos (≥54h)</button>
+                <button onclick="setMonitorStatusFilter('PROGRESO')" data-mon-filter="PROGRESO" class="mon-filter-btn px-2.5 py-1 rounded font-semibold bg-white text-slate-600 border border-slate-300 hover:bg-slate-50">En Progreso</button>
+                <button onclick="setMonitorStatusFilter('RIESGO')" data-mon-filter="RIESGO" class="mon-filter-btn px-2.5 py-1 rounded font-semibold bg-white text-slate-600 border border-slate-300 hover:bg-slate-50">En Riesgo (&lt;20h)</button>
+                <button onclick="setMonitorStatusFilter('INACTIVO')" data-mon-filter="INACTIVO" class="mon-filter-btn px-2.5 py-1 rounded font-semibold bg-white text-slate-600 border border-slate-300 hover:bg-slate-50">Inactivos</button>
+              </div>
             </div>
 
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs border-collapse">
                 <thead class="bg-[#f8fafc] text-slate-700 font-semibold border-b border-slate-300 uppercase tracking-wider text-[11px]">
                   <tr>
-                    <th class="py-2.5 px-4">Monitor / Código</th>
-                    <th class="py-2.5 px-4 text-center">Horas Registradas</th>
-                    <th class="py-2.5 px-4">Progreso a 54 Horas</th>
+                    <th class="py-2.5 px-4 cursor-pointer hover:text-slate-900 select-none" onclick="sortMonitorsBy('name')">Monitor / Código ↕</th>
+                    <th class="py-2.5 px-4 text-center cursor-pointer hover:text-slate-900 select-none" onclick="sortMonitorsBy('platformHours')">Horas Registradas ↕</th>
+                    <th class="py-2.5 px-4 cursor-pointer hover:text-slate-900 select-none" onclick="sortMonitorsBy('progress')">Progreso a 54 Horas ↕</th>
                     <th class="py-2.5 px-4 text-center">Estudiantes</th>
                     <th class="py-2.5 px-4 text-center">Estado</th>
                     <th class="py-2.5 px-4 text-right">Acción</th>
@@ -597,12 +658,26 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
               <div>
                 <h3 class="text-base font-bold text-slate-900">Control de Usuarios, Roles y Seguridad</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Gestión de roles institucionales, conmutador de estado activo/inactivo y bitácora de auditoría.</p>
+                <p class="text-xs text-slate-500 mt-0.5">Creación de usuarios con credenciales, edición de cuentas, conmutador de estado y bitácora de auditoría.</p>
               </div>
-              <button onclick="openAuditLogsModal()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 rounded flex items-center space-x-1.5">
-                <i data-lucide="history" class="w-3.5 h-3.5 text-slate-600"></i>
-                <span>Bitácora de Auditoría</span>
-              </button>
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="openAddUserModal()" class="px-3 py-1.5 bg-[#007336] hover:bg-[#005025] text-white text-xs font-semibold rounded flex items-center space-x-1.5">
+                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                  <span>Nuevo Usuario</span>
+                </button>
+                <button onclick="openAuditLogsModal()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-300 rounded flex items-center space-x-1.5">
+                  <i data-lucide="history" class="w-3.5 h-3.5 text-slate-600"></i>
+                  <span>Bitácora de Auditoría</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="relative max-w-sm w-full">
+                <input type="text" id="adminUserSearch" placeholder="Filtrar por nombre, código o @usuario..." oninput="renderAdminUsersTable()" class="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+              </div>
+              <span id="adminUsersCount" class="text-[11px] text-slate-500 font-mono"></span>
             </div>
 
             <!-- Tabla CRUD -->
@@ -610,8 +685,9 @@
               <table class="w-full text-left text-xs border-collapse">
                 <thead class="bg-[#f8fafc] text-slate-700 font-semibold border-b border-slate-300 uppercase tracking-wider text-[11px]">
                   <tr>
-                    <th class="py-2.5 px-4">Usuario / Nombre</th>
+                    <th class="py-2.5 px-4">Nombre / Correo</th>
                     <th class="py-2.5 px-4 font-mono">Código USB</th>
+                    <th class="py-2.5 px-4 font-mono">Usuario Acceso</th>
                     <th class="py-2.5 px-4">Rol Asignado</th>
                     <th class="py-2.5 px-4 text-center">Meta Horas</th>
                     <th class="py-2.5 px-4 text-center">Estado Acceso</th>
@@ -835,6 +911,16 @@
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Tema Previsto a Desarrollar: *</label>
           <input type="text" id="schTopic" required placeholder="Ej: Preparación Segundo Examen Parcial" class="w-full text-xs p-2 border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
+        </div>
+
+        <label class="flex items-center space-x-2 p-2.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-700 cursor-pointer">
+          <input type="checkbox" id="schRepeatWeekly" class="rounded border-slate-300 text-[#007336] focus:ring-[#007336]">
+          <span>Repetir semanalmente en este mismo horario <strong>(próximas 4 semanas)</strong></span>
+        </label>
+
+        <div id="schConflictError" class="hidden p-2.5 bg-rose-50 border border-rose-300 rounded text-[11px] text-rose-800 flex items-start space-x-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5 text-rose-700"></i>
+          <span id="schConflictErrorText"></span>
         </div>
 
         <div class="flex justify-end space-x-2 pt-3 border-t border-slate-200">
@@ -1124,30 +1210,71 @@
     </div>
   </div>
 
-  <!-- MODAL: CREAR USUARIO (CRUD) -->
-  <div id="modalAddUser" class="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4 hidden no-print">
-    <div class="bg-white rounded-md max-w-md w-full p-6 border border-slate-300 shadow-lg">
+  <!-- MODAL: CREAR / MODIFICAR USUARIO (CRUD) -->
+  <div id="modalAddUser" class="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4 hidden no-print" onclick="if(event.target===this) closeAddUserModal()">
+    <div class="bg-white rounded-md max-w-lg w-full p-6 border border-slate-300 shadow-lg max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center pb-3 border-b border-slate-200">
-        <h3 class="text-base font-bold text-slate-900">Crear Nuevo Usuario</h3>
-        <button onclick="closeAddUserModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100">
+        <div>
+          <h3 id="modalUserTitle" class="text-base font-bold text-slate-900">Crear Nuevo Usuario</h3>
+          <p id="modalUserSubtitle" class="text-[11px] text-slate-500">Asigna credenciales de acceso y rol institucional.</p>
+        </div>
+        <button type="button" onclick="closeAddUserModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleCreateUser(event)" class="mt-4 space-y-3 text-xs">
+      <form onsubmit="handleSaveUser(event)" class="mt-4 space-y-3 text-xs">
+        <input type="hidden" id="editUserId" value="">
+        <div id="userFormError" class="hidden p-2.5 bg-rose-50 border border-rose-300 rounded text-[11px] text-rose-800 flex items-center space-x-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-700"></i>
+          <span id="userFormErrorText"></span>
+        </div>
+
         <div>
           <label class="block font-bold text-slate-700 mb-1">Nombre Completo: *</label>
           <input type="text" id="newUserName" required placeholder="Ej: Brayhan Alejandro Gómez" class="w-full p-2 border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
         </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Código Institucional: *</label>
-          <input type="text" id="newUserCode" required placeholder="Ej: MONITOR21" class="w-full p-2 border border-slate-300 rounded font-mono focus:border-[#007336] focus:outline-none">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Código Institucional: *</label>
+            <input type="text" id="newUserCode" required placeholder="Ej: MONITOR21" oninput="autoFillUserFields(this.value)" class="w-full p-2 border border-slate-300 rounded font-mono uppercase focus:border-[#007336] focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Correo Electrónico: *</label>
+            <input type="email" id="newUserEmail" required placeholder="b_gomez@unisimon.edu.co" class="w-full p-2 border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
+          </div>
         </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Correo Electrónico: *</label>
-          <input type="email" id="newUserEmail" required placeholder="b_gomez@unisimon.edu.co" class="w-full p-2 border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
+
+        <!-- Credenciales de Acceso -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 flex items-center space-x-1.5">
+              <i data-lucide="key-round" class="w-3.5 h-3.5 text-[#007336]"></i>
+              <span>Credenciales de Acceso al Sistema</span>
+            </span>
+            <button type="button" onclick="generateUserPassword()" class="text-[11px] font-semibold text-[#007336] hover:underline">
+              Generar clave
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Usuario: *</label>
+              <input type="text" id="newUserUsername" required placeholder="ej: monitor21" class="w-full p-2 bg-white border border-slate-300 rounded font-mono focus:border-[#007336] focus:outline-none">
+            </div>
+            <div>
+              <label id="lblNewUserPassword" class="block font-bold text-slate-700 mb-1">Contraseña: *</label>
+              <div class="relative">
+                <input type="password" id="newUserPassword" placeholder="Mínimo 4 caracteres" class="w-full p-2 pr-8 bg-white border border-slate-300 rounded font-mono focus:border-[#007336] focus:outline-none">
+                <button type="button" onclick="togglePasswordVisibility('newUserPassword', this)" class="absolute right-2 top-2 text-slate-400 hover:text-slate-700">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="grid grid-cols-2 gap-2">
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Rol: *</label>
             <select id="newUserRole" class="w-full p-2 border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
@@ -1159,7 +1286,14 @@
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Meta de Horas: *</label>
-            <input type="number" id="newUserTarget" required value="54" class="w-full p-2 border border-slate-300 rounded font-mono focus:border-[#007336] focus:outline-none">
+            <input type="number" id="newUserTarget" required value="54" min="0" class="w-full p-2 border border-slate-300 rounded font-mono focus:border-[#007336] focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Estado Acceso:</label>
+            <select id="newUserEnabled" class="w-full p-2 border border-slate-300 rounded focus:border-[#007336] focus:outline-none">
+              <option value="true">Activo</option>
+              <option value="false">Deshabilitado</option>
+            </select>
           </div>
         </div>
 
@@ -1167,7 +1301,7 @@
           <button type="button" onclick="closeAddUserModal()" class="px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-100 rounded border border-slate-300">
             Cancelar
           </button>
-          <button type="submit" class="px-4 py-1.5 font-semibold text-white bg-[#007336] hover:bg-[#005025] rounded">
+          <button type="submit" id="btnSaveUser" class="px-4 py-1.5 font-semibold text-white bg-[#007336] hover:bg-[#005025] rounded">
             Guardar Usuario
           </button>
         </div>
@@ -1175,28 +1309,94 @@
     </div>
   </div>
 
+  <!-- MODAL: AUDITORÍA DE MONITOR -->
+  <div id="modalAuditMonitor" class="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4 hidden no-print" onclick="if(event.target===this) closeAuditMonitorModal()">
+    <div class="bg-white rounded-md max-w-xl w-full p-6 border border-slate-300 shadow-lg max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start pb-3 border-b border-slate-200">
+        <div>
+          <span id="auditMonCode" class="text-[11px] font-mono font-bold px-2 py-0.5 bg-emerald-50 text-[#007336] border border-emerald-200 rounded"></span>
+          <h3 id="auditMonName" class="text-base font-bold text-slate-900 mt-1"></h3>
+          <p id="auditMonMeta" class="text-xs text-slate-500 font-mono"></p>
+        </div>
+        <button type="button" onclick="closeAuditMonitorModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="auditMonBody" class="mt-4 space-y-4 text-xs"></div>
+      <div class="flex justify-between items-center pt-4 mt-4 border-t border-slate-200">
+        <button type="button" id="btnAuditEditUser" class="px-3 py-1.5 font-semibold text-slate-700 bg-white hover:bg-slate-100 rounded border border-slate-300 flex items-center space-x-1.5">
+          <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+          <span>Modificar Usuario / Clave</span>
+        </button>
+        <button type="button" onclick="closeAuditMonitorModal()" class="px-4 py-1.5 font-semibold text-white bg-slate-800 hover:bg-slate-900 rounded">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALLE DE ASISTENTES -->
+  <div id="modalAttendeesDetail" class="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4 hidden no-print" onclick="if(event.target===this) closeAttendeesModal()">
+    <div class="bg-white rounded-md max-w-lg w-full p-5 border border-slate-300 shadow-lg">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">Estudiantes Asistentes</h3>
+          <p id="attendeesModalSubject" class="text-xs text-slate-500"></p>
+        </div>
+        <button type="button" onclick="closeAttendeesModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="attendeesModalList" class="mt-3 max-h-64 overflow-y-auto divide-y divide-slate-200 border border-slate-200 rounded text-xs"></div>
+      <div class="flex justify-end pt-3 mt-3 border-t border-slate-200">
+        <button type="button" onclick="closeAttendeesModal()" class="px-4 py-1.5 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-900 rounded">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAR ELIMINACIÓN DE USUARIO -->
+  <div id="modalConfirmDelete" class="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4 hidden no-print" onclick="if(event.target===this) closeConfirmDeleteModal()">
+    <div class="bg-white rounded-md max-w-sm w-full p-5 border border-slate-300 shadow-lg">
+      <h3 class="text-sm font-bold text-slate-900">Confirmar Eliminación</h3>
+      <p id="confirmDeleteText" class="text-xs text-slate-600 mt-2 leading-relaxed"></p>
+      <div class="flex justify-end space-x-2 mt-4 pt-3 border-t border-slate-200">
+        <button type="button" onclick="closeConfirmDeleteModal()" class="px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded border border-slate-300">
+          Cancelar
+        </button>
+        <button type="button" id="btnConfirmDelete" class="px-4 py-1.5 text-xs font-semibold text-white bg-rose-700 hover:bg-rose-800 rounded">
+          Eliminar Usuario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
+  <div id="toastContainer" aria-live="polite" class="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
+
   <!-- ==================== LÓGICA JAVASCRIPT ==================== -->
   <script>
     // ==================== BASE DE DATOS LOCAL Y ESTADO ====================
     let usersList = [
-      { id: '1', code: 'MONITOR18', name: 'Johan Sebastian Rojas Gómez', email: 'j_rojas20@unisimon.edu.co', role: 'MONITOR', platformHours: 38.0, excelHours: 38.0, target: 54.0, enabled: true },
-      { id: '2', code: 'MONITOR1', name: 'Alba Rocío Carrillo Jaimes', email: 'a_carrillo@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
-      { id: '3', code: 'MONITOR2', name: 'Andrés Camilo Pérez Ortiz', email: 'a_perez@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
-      { id: '4', code: 'MONITOR4', name: 'Carlos Daniel Mendoza Rangel', email: 'c_mendoza@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
-      { id: '5', code: 'MONITOR6', name: 'Diego Fernando Rueda Gómez', email: 'd_rueda@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
-      { id: '6', code: 'MONITOR8', name: 'Erika Tatiana Morales Silva', email: 'e_morales@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
-      { id: '7', code: 'MONITOR10', name: 'Gabriel Antonio Villamizar Niño', email: 'g_villamizar@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
-      { id: '8', code: 'MONITOR12', name: 'Ingrid Vanessa Quintero Ruiz', email: 'i_quintero@unisimon.edu.co', role: 'MONITOR', platformHours: 46.0, excelHours: 42.0, target: 54.0, enabled: true },
-      { id: '9', code: 'MONITOR14', name: 'Brayhan Alejandro Gómez Vega', email: 'b_gomez@unisimon.edu.co', role: 'MONITOR', platformHours: 40.0, excelHours: 40.0, target: 54.0, enabled: true },
-      { id: '10', code: 'MONITOR16', name: 'Jesús Alberto Suárez Castro', email: 'j_suarez@unisimon.edu.co', role: 'MONITOR', platformHours: 42.0, excelHours: 42.0, target: 54.0, enabled: true },
-      { id: '11', code: 'MONITOR20', name: 'Karen Yuliana Duarte Parra', email: 'k_duarte@unisimon.edu.co', role: 'MONITOR', platformHours: 36.0, excelHours: 32.0, target: 54.0, enabled: true },
-      { id: '12', code: 'MONITOR22', name: 'Luis Eduardo Pabón Contreras', email: 'l_pabon@unisimon.edu.co', role: 'MONITOR', platformHours: 30.0, excelHours: 30.0, target: 54.0, enabled: true },
-      { id: '13', code: 'MONITOR24', name: 'María Paula Cárdenas Becerra', email: 'm_cardenas@unisimon.edu.co', role: 'MONITOR', platformHours: 28.0, excelHours: 28.0, target: 54.0, enabled: true },
-      { id: '14', code: 'MONITOR26', name: 'Néstor Javier Cely Serrano', email: 'n_cely@unisimon.edu.co', role: 'MONITOR', platformHours: 24.0, excelHours: 24.0, target: 54.0, enabled: true },
-      { id: '15', code: 'MONITOR28', name: 'Oscar Mauricio Vera Delgado', email: 'o_vera@unisimon.edu.co', role: 'MONITOR', platformHours: 22.0, excelHours: 20.0, target: 54.0, enabled: true },
-      { id: '16', code: 'MONITOR30', name: 'Paula Andrea Quintana Rico', email: 'p_quintana@unisimon.edu.co', role: 'MONITOR', platformHours: 18.0, excelHours: 18.0, target: 54.0, enabled: true },
-      { id: '17', code: 'MONITOR32', name: 'Rodrigo Andrés Barajas Moreno', email: 'r_barajas@unisimon.edu.co', role: 'MONITOR', platformHours: 12.0, excelHours: 0.0, target: 54.0, enabled: false },
-      { id: '18', code: 'DOC-1001', name: 'Jover Alonso Cabrales', email: 'j_cabrales@unisimon.edu.co', role: 'DIRECTOR', platformHours: 0, excelHours: 0, target: 0, enabled: true }
+      { id: '1', code: 'MONITOR18', username: 'j_rojas20', password: 'admin', name: 'Johan Sebastian Rojas Gómez', email: 'j_rojas20@unisimon.edu.co', role: 'MONITOR', platformHours: 38.0, excelHours: 38.0, target: 54.0, enabled: true },
+      { id: '2', code: 'MONITOR1', username: 'a_carrillo', password: 'admin', name: 'Alba Rocío Carrillo Jaimes', email: 'a_carrillo@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
+      { id: '3', code: 'MONITOR2', username: 'a_perez', password: 'admin', name: 'Andrés Camilo Pérez Ortiz', email: 'a_perez@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
+      { id: '4', code: 'MONITOR4', username: 'c_mendoza', password: 'admin', name: 'Carlos Daniel Mendoza Rangel', email: 'c_mendoza@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
+      { id: '5', code: 'MONITOR6', username: 'd_rueda', password: 'admin', name: 'Diego Fernando Rueda Gómez', email: 'd_rueda@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
+      { id: '6', code: 'MONITOR8', username: 'e_morales', password: 'admin', name: 'Erika Tatiana Morales Silva', email: 'e_morales@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
+      { id: '7', code: 'MONITOR10', username: 'g_villamizar', password: 'admin', name: 'Gabriel Antonio Villamizar Niño', email: 'g_villamizar@unisimon.edu.co', role: 'MONITOR', platformHours: 54.0, excelHours: 54.0, target: 54.0, enabled: true },
+      { id: '8', code: 'MONITOR12', username: 'i_quintero', password: 'admin', name: 'Ingrid Vanessa Quintero Ruiz', email: 'i_quintero@unisimon.edu.co', role: 'MONITOR', platformHours: 46.0, excelHours: 42.0, target: 54.0, enabled: true },
+      { id: '9', code: 'MONITOR14', username: 'b_gomez', password: 'admin', name: 'Brayhan Alejandro Gómez Vega', email: 'b_gomez@unisimon.edu.co', role: 'MONITOR', platformHours: 40.0, excelHours: 40.0, target: 54.0, enabled: true },
+      { id: '10', code: 'MONITOR16', username: 'j_suarez', password: 'admin', name: 'Jesús Alberto Suárez Castro', email: 'j_suarez@unisimon.edu.co', role: 'MONITOR', platformHours: 42.0, excelHours: 42.0, target: 54.0, enabled: true },
+      { id: '11', code: 'MONITOR20', username: 'k_duarte', password: 'admin', name: 'Karen Yuliana Duarte Parra', email: 'k_duarte@unisimon.edu.co', role: 'MONITOR', platformHours: 36.0, excelHours: 32.0, target: 54.0, enabled: true },
+      { id: '12', code: 'MONITOR22', username: 'l_pabon', password: 'admin', name: 'Luis Eduardo Pabón Contreras', email: 'l_pabon@unisimon.edu.co', role: 'MONITOR', platformHours: 30.0, excelHours: 30.0, target: 54.0, enabled: true },
+      { id: '13', code: 'MONITOR24', username: 'm_cardenas', password: 'admin', name: 'María Paula Cárdenas Becerra', email: 'm_cardenas@unisimon.edu.co', role: 'MONITOR', platformHours: 28.0, excelHours: 28.0, target: 54.0, enabled: true },
+      { id: '14', code: 'MONITOR26', username: 'n_cely', password: 'admin', name: 'Néstor Javier Cely Serrano', email: 'n_cely@unisimon.edu.co', role: 'MONITOR', platformHours: 24.0, excelHours: 24.0, target: 54.0, enabled: true },
+      { id: '15', code: 'MONITOR28', username: 'o_vera', password: 'admin', name: 'Oscar Mauricio Vera Delgado', email: 'o_vera@unisimon.edu.co', role: 'MONITOR', platformHours: 22.0, excelHours: 20.0, target: 54.0, enabled: true },
+      { id: '16', code: 'MONITOR30', username: 'p_quintana', password: 'admin', name: 'Paula Andrea Quintana Rico', email: 'p_quintana@unisimon.edu.co', role: 'MONITOR', platformHours: 18.0, excelHours: 18.0, target: 54.0, enabled: true },
+      { id: '17', code: 'MONITOR32', username: 'r_barajas', password: 'admin', name: 'Rodrigo Andrés Barajas Moreno', email: 'r_barajas@unisimon.edu.co', role: 'MONITOR', platformHours: 12.0, excelHours: 0.0, target: 54.0, enabled: false },
+      { id: '18', code: 'DOC-1001', username: 'Admin', password: 'admin', name: 'Jover Alonso Cabrales', email: 'j_cabrales@unisimon.edu.co', role: 'DIRECTOR', platformHours: 0, excelHours: 0, target: 0, enabled: true }
     ];
 
     let auditLogs = [
@@ -1416,30 +1616,89 @@
       lucide.createIcons();
     }
 
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      if (btn) {
+        btn.innerHTML = `<i data-lucide="${isPwd ? 'eye-off' : 'eye'}" class="w-4 h-4"></i>`;
+        lucide.createIcons();
+      }
+    }
+
+    function showToast(type, title, message = '') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const styles = {
+        success: { border: 'border-l-4 border-l-[#007336] border-slate-300', icon: 'check-circle', iconColor: 'text-[#007336]' },
+        error: { border: 'border-l-4 border-l-rose-700 border-slate-300', icon: 'alert-circle', iconColor: 'text-rose-700' },
+        info: { border: 'border-l-4 border-l-slate-700 border-slate-300', icon: 'info', iconColor: 'text-slate-700' }
+      }[type] || { border: 'border-l-4 border-l-[#007336] border-slate-300', icon: 'info', iconColor: 'text-[#007336]' };
+
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto bg-white border ${styles.border} rounded shadow-md p-3 flex items-start space-x-2.5 text-xs transition-all duration-200`;
+      el.innerHTML = `
+        <i data-lucide="${styles.icon}" class="w-4 h-4 ${styles.iconColor} shrink-0 mt-0.5"></i>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-slate-900">${title}</p>
+          ${message ? `<p class="text-[11px] text-slate-600 mt-0.5 leading-snug">${message}</p>` : ''}
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-700 p-0.5">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      `;
+      container.appendChild(el);
+      lucide.createIcons();
+      setTimeout(() => {
+        if (el.parentElement) el.remove();
+      }, 4000);
+    }
+
     function handleFormLogin(e) {
       e.preventDefault();
       const u = document.getElementById('loginUsername').value.trim();
       const p = document.getElementById('loginPassword').value.trim();
+      const errorBox = document.getElementById('loginErrorBox');
+      const errorText = document.getElementById('loginErrorText');
+      errorBox.classList.add('hidden');
 
-      if ((u.toLowerCase() === 'admin' || u.toLowerCase() === 'director') && p === 'admin') {
+      const foundUser = usersList.find(user =>
+        (user.username && user.username.toLowerCase() === u.toLowerCase()) ||
+        user.code.toLowerCase() === u.toLowerCase() ||
+        user.email.toLowerCase() === u.toLowerCase()
+      );
+
+      const isDirectorAlias = (u.toLowerCase() === 'admin' || u.toLowerCase() === 'director') && p === 'admin';
+      const targetUser = foundUser || (isDirectorAlias ? usersList.find(x => x.role === 'DIRECTOR') : null);
+
+      if (targetUser && (targetUser.password === p || isDirectorAlias)) {
+        if (!targetUser.enabled) {
+          errorText.textContent = `La cuenta ${targetUser.code} se encuentra deshabilitada. Contacta al Director del programa.`;
+          errorBox.classList.remove('hidden');
+          lucide.createIcons();
+          return;
+        }
         authenticatedUser = {
-          name: 'Jover Alonso Cabrales',
-          code: 'DOC-1001',
-          role: 'DIRECTOR',
-          isAdmin: true
-        };
-        showAuthenticatedApp();
-      } else if ((u.toUpperCase() === 'MONITOR18' || u.toLowerCase() === 'j_rojas20') && p === 'admin') {
-        authenticatedUser = {
-          name: 'Johan Sebastian Rojas Gómez',
-          code: 'MONITOR18',
-          role: 'MONITOR',
-          isAdmin: false
+          id: targetUser.id,
+          name: targetUser.name,
+          code: targetUser.code,
+          role: targetUser.role,
+          isAdmin: targetUser.role !== 'MONITOR'
         };
         showAuthenticatedApp();
       } else {
-        alert('Credenciales no válidas.\n• Director: Usuario "Admin" y clave "admin"\n• Monitor: Usuario "MONITOR18" y clave "admin"');
+        errorText.textContent = 'Credenciales no válidas. Verifica tu usuario/código y contraseña.';
+        errorBox.classList.remove('hidden');
+        lucide.createIcons();
       }
+    }
+
+    function fillDemoCredentials() {
+      const isMonitor = document.getElementById('loginTabMonitorBtn').classList.contains('bg-white');
+      document.getElementById('loginUsername').value = isMonitor ? 'MONITOR18' : 'Admin';
+      document.getElementById('loginPassword').value = 'admin';
+      document.getElementById('loginErrorBox').classList.add('hidden');
     }
 
     function showAuthenticatedApp() {
@@ -1456,13 +1715,15 @@
         switchMonitorSubTab('historial');
         recalculateProgress();
         renderSessions(sessions);
+        renderMonitorSubjectsSummary();
         renderCalendar();
         renderScheduledList();
       } else {
         document.getElementById('viewMonitorOnly').classList.add('hidden');
         document.getElementById('viewDirectorOnly').classList.remove('hidden');
         switchDirectorSubTab('matriz');
-        renderMonitorsTable(usersList.filter(u => u.role === 'MONITOR'));
+        updateDirectorKPIs();
+        filterMonitorsTable();
         renderComparisonTable();
         renderAdminUsersTable();
       }
@@ -1554,6 +1815,174 @@
       if (uMon) {
         uMon.platformHours = totalHours;
       }
+      renderMonitorSubjectsSummary();
+    }
+
+    function renderMonitorSubjectsSummary() {
+      const box = document.getElementById('monitorSubjectsSummary');
+      if (!box) return;
+      const map = {};
+      sessions.forEach(s => {
+        if (s.status === 'CANCELADA_MONITOR' || s.monitorAttended === false) return;
+        map[s.subject] = (map[s.subject] || 0) + Number(s.hours);
+      });
+      const entries = Object.entries(map).sort((a, b) => b[1] - a[1]);
+      if (entries.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+      box.classList.remove('hidden');
+      box.innerHTML = `<span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mr-1">Horas por Asignatura:</span>` +
+        entries.map(([sub, hrs]) => `
+          <button type="button" onclick="document.getElementById('filterSubject').value='${sub}'; applyFilters();" class="px-2.5 py-1 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-[#007336] rounded text-[11px] text-slate-700 flex items-center space-x-1.5 transition" title="Filtrar por ${sub}">
+            <span class="font-semibold">${sub}:</span>
+            <strong class="font-mono text-[#007336]">${hrs.toFixed(1)}h</strong>
+          </button>
+        `).join('');
+    }
+
+    function exportMonitorSessionsCsv() {
+      const monitorName = authenticatedUser ? authenticatedUser.name : 'Johan Sebastian Rojas Gómez';
+      const monitorCode = authenticatedUser ? authenticatedUser.code : 'MONITOR18';
+      const validHours = sessions
+        .filter(s => s.status !== 'CANCELADA_MONITOR' && s.monitorAttended !== false)
+        .reduce((acc, s) => acc + Number(s.hours), 0)
+        .toFixed(1);
+      const logoUrl = `${window.location.origin}/logo-unisimon.png`;
+
+      // Filas de la planilla oficial de 12 columnas (PM-DO-PEG-F066)
+      let itemCounter = 1;
+      const officialRows = [];
+      sessions.forEach(s => {
+        if (s.status === 'CANCELADA_MONITOR' || s.monitorAttended === false) return;
+        const attendeesList = (s.attendees && s.attendees.length > 0)
+          ? s.attendees
+          : [{ code: '—', name: 'Sesión sin asistencia individual registrada', docType: '—', docNum: '—', refType: 'V' }];
+        attendeesList.forEach(a => {
+          officialRows.push(`
+            <tr>
+              <td style="border:1px solid #334155; text-align:center; padding:4px;">${itemCounter++}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px; mso-number-format:'\\@';">${a.code || 'N/A'}</td>
+              <td style="border:1px solid #334155; padding:4px;">${a.name}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px;">${a.docType || 'CC'}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px; mso-number-format:'\\@';">${a.docNum || '—'}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px;">${a.refType || 'V'}</td>
+              <td style="border:1px solid #334155; padding:4px;">${s.subject}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px;">${s.date}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px;">${s.startTime}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px;">${s.endTime}</td>
+              <td style="border:1px solid #334155; padding:4px;">${s.place || s.type}</td>
+              <td style="border:1px solid #334155; text-align:center; padding:4px;">${Number(s.hours).toFixed(1)}h</td>
+            </tr>
+          `);
+        });
+      });
+
+      // Filas de resumen de sesiones
+      const sessionRows = sessions.map((s, idx) => `
+        <tr>
+          <td style="border:1px solid #334155; text-align:center; padding:4px;">${idx + 1}</td>
+          <td style="border:1px solid #334155; text-align:center; padding:4px;">${s.date}</td>
+          <td style="border:1px solid #334155; text-align:center; padding:4px;">${s.startTime} - ${s.endTime}</td>
+          <td style="border:1px solid #334155; text-align:center; padding:4px; font-weight:bold;">${Number(s.hours).toFixed(1)}</td>
+          <td style="border:1px solid #334155; padding:4px;">${s.subject}</td>
+          <td style="border:1px solid #334155; text-align:center; padding:4px;">${s.type}</td>
+          <td style="border:1px solid #334155; padding:4px;" colspan="3">${s.topic || ''}</td>
+          <td style="border:1px solid #334155; padding:4px;" colspan="2">${s.observation || ''}</td>
+          <td style="border:1px solid #334155; text-align:center; padding:4px;">${s.status}</td>
+        </tr>
+      `).join('');
+
+      const excelHtml = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8">
+          <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Planilla PM-DO-PEG-F066</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+        </head>
+        <body style="font-family:'Segoe UI', Arial, sans-serif; font-size:11px; color:#1e293b;">
+          <table style="border-collapse:collapse; width:100%;">
+            <tr>
+              <td colspan="3" rowspan="3" style="border:1px solid #000; text-align:center; vertical-align:middle; padding:8px; background:#ffffff;">
+                <img src="${logoUrl}" height="48" alt="Universidad Simón Bolívar" />
+              </td>
+              <td colspan="6" rowspan="2" style="border:1px solid #000; text-align:center; vertical-align:middle; font-size:13px; font-weight:bold; background:#f8fafc; padding:6px;">
+                UNIVERSIDAD SIMÓN BOLÍVAR — SEDE CÚCUTA<br>
+                CONTROL DE ASISTENCIA A MONITORÍA ACADÉMICA (PIM-D)
+              </td>
+              <td colspan="3" style="border:1px solid #000; padding:4px; font-size:10px; background:#f8fafc;"><strong>CÓDIGO:</strong> PM-DO-PEG-F066</td>
+            </tr>
+            <tr>
+              <td colspan="3" style="border:1px solid #000; padding:4px; font-size:10px; background:#f8fafc;"><strong>PERIODO:</strong> 2026-2</td>
+            </tr>
+            <tr>
+              <td colspan="6" style="border:1px solid #000; text-align:center; font-size:10px; padding:4px; background:#e8f5e9; color:#005025; font-weight:bold;">
+                DEPARTAMENTO DE PEDAGOGÍA • PROGRAMA DE INGENIERÍA DE SISTEMAS
+              </td>
+              <td colspan="3" style="border:1px solid #000; padding:4px; font-size:10px; background:#f8fafc;"><strong>FECHA EXP.:</strong> ${new Date().toISOString().split('T')[0]}</td>
+            </tr>
+            <tr>
+              <td colspan="6" style="border:1px solid #000; padding:5px;"><strong>Monitor Académico:</strong> ${monitorName}</td>
+              <td colspan="3" style="border:1px solid #000; padding:5px;"><strong>Código:</strong> ${monitorCode}</td>
+              <td colspan="3" style="border:1px solid #000; padding:5px;"><strong>Horas Validadas:</strong> ${validHours}h / 54.0h</td>
+            </tr>
+            <tr><td colspan="12" style="height:8px;"></td></tr>
+            <tr style="background:#007336; color:#ffffff; font-weight:bold; text-align:center; font-size:10px;">
+              <th style="border:1px solid #000; padding:6px;">ITEM</th>
+              <th style="border:1px solid #000; padding:6px;">CÓDIGO ESTUDIANTE</th>
+              <th style="border:1px solid #000; padding:6px;">NOMBRES Y APELLIDOS</th>
+              <th style="border:1px solid #000; padding:6px;">TIPO DOC</th>
+              <th style="border:1px solid #000; padding:6px;">NÚMERO DOCUMENTO</th>
+              <th style="border:1px solid #000; padding:6px;">R / V</th>
+              <th style="border:1px solid #000; padding:6px;">ASIGNATURA / CURSO</th>
+              <th style="border:1px solid #000; padding:6px;">FECHA</th>
+              <th style="border:1px solid #000; padding:6px;">HORA INICIO</th>
+              <th style="border:1px solid #000; padding:6px;">HORA FINAL</th>
+              <th style="border:1px solid #000; padding:6px;">LUGAR / MODALIDAD</th>
+              <th style="border:1px solid #000; padding:6px;">HORAS SESIÓN</th>
+            </tr>
+            ${officialRows.join('')}
+            <tr><td colspan="12" style="height:14px;"></td></tr>
+            <tr style="background:#1e293b; color:#ffffff; font-weight:bold; text-align:center; font-size:10px;">
+              <th style="border:1px solid #000; padding:5px;">#</th>
+              <th style="border:1px solid #000; padding:5px;">FECHA</th>
+              <th style="border:1px solid #000; padding:5px;">HORARIO</th>
+              <th style="border:1px solid #000; padding:5px;">HORAS</th>
+              <th style="border:1px solid #000; padding:5px;">ASIGNATURA</th>
+              <th style="border:1px solid #000; padding:5px;">MODALIDAD</th>
+              <th style="border:1px solid #000; padding:5px;" colspan="3">TEMA DESARROLLADO</th>
+              <th style="border:1px solid #000; padding:5px;" colspan="2">OBSERVACIONES</th>
+              <th style="border:1px solid #000; padding:5px;">ESTADO</th>
+            </tr>
+            ${sessionRows}
+            <tr>
+              <td colspan="3" style="border:1px solid #000; padding:6px; font-weight:bold; text-align:right; background:#f8fafc;">TOTAL HORAS VÁLIDAS:</td>
+              <td style="border:1px solid #000; padding:6px; font-weight:bold; text-align:center; background:#e8f5e9; color:#005025;">${validHours}h</td>
+              <td colspan="8" style="border:1px solid #000; padding:6px; background:#f8fafc;">Meta reglamentaria institucional: 54.0 horas</td>
+            </tr>
+            <tr><td colspan="12" style="height:22px;"></td></tr>
+            <tr>
+              <td colspan="6" style="text-align:center; padding-top:18px; border-top:1px solid #000;">
+                <strong>FIRMA DEL MONITOR ACADÉMICO</strong><br>${monitorName} (${monitorCode})
+              </td>
+              <td colspan="6" style="text-align:center; padding-top:18px; border-top:1px solid #000;">
+                <strong>COORDINACIÓN PIM-D / DIRECTOR DE PROGRAMA</strong><br>Universidad Simón Bolívar — Sede Cúcuta
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\uFEFF' + excelHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Planilla_Oficial_PM-DO-PEG-F066_${monitorCode}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('success', 'Planilla Excel Oficial descargada', `Se generó el archivo .xls con logo y formato PM-DO-PEG-F066.`);
     }
 
     // ==================== RENDER DE TABLA DE SESIONES (HISTORIAL) ====================
@@ -1635,16 +2064,33 @@
       renderSessions(filtered);
     }
 
+    let selectedCalendarDate = new Date().toISOString().split('T')[0];
+
     // ==================== MÓDULO DE CALENDARIO INSTITUCIONAL ====================
     function renderCalendar() {
       const year = currentCalDate.getFullYear();
       const month = currentCalDate.getMonth();
+      const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+      const filterEl = document.getElementById('calFilterMode');
+      const filterMode = filterEl ? filterEl.value : 'ALL';
 
       const monthNames = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
       ];
       document.getElementById('calCurrentMonthLabel').textContent = `${monthNames[month]} ${year}`;
+
+      // Calcular resumen de horas del mes visible
+      const monthExecutedHours = sessions
+        .filter(s => s.date.startsWith(monthPrefix) && s.status !== 'CANCELADA_MONITOR' && s.monitorAttended !== false)
+        .reduce((acc, s) => acc + Number(s.hours), 0);
+      const monthScheduledHours = scheduledSessions
+        .filter(sch => sch.date.startsWith(monthPrefix) && sch.status === 'PROGRAMADA')
+        .reduce((acc, sch) => acc + Number(sch.hours), 0);
+      const summaryEl = document.getElementById('calMonthHoursSummary');
+      if (summaryEl) {
+        summaryEl.textContent = `Mes: ${monthExecutedHours.toFixed(1)}h ejecutadas • ${monthScheduledHours.toFixed(1)}h programadas`;
+      }
 
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
@@ -1669,13 +2115,21 @@
       for (let day = 1; day <= totalDays; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+        const isSelected = selectedCalendarDate === dateStr;
 
-        // Buscar sesiones de ese día (tanto en sessions como en scheduledSessions)
-        const daySessions = sessions.filter(s => s.date === dateStr);
-        const dayScheduled = scheduledSessions.filter(sch => sch.date === dateStr);
+        const daySessions = filterMode === 'PROGRAMADA' ? [] : sessions.filter(s => s.date === dateStr);
+        const dayScheduled = filterMode === 'CUMPLIDA'
+          ? []
+          : scheduledSessions.filter(sch => sch.date === dateStr && (filterMode !== 'PROGRAMADA' || sch.status === 'PROGRAMADA'));
 
         const cell = document.createElement('div');
-        cell.className = `cal-cell p-1.5 border border-slate-200 bg-white flex flex-col justify-between transition cursor-pointer ${isToday ? 'ring-1 ring-[#007336] bg-emerald-50/20' : ''}`;
+        cell.className = `cal-cell p-1.5 border border-slate-200 flex flex-col justify-between transition cursor-pointer ${
+          isSelected
+            ? 'ring-2 ring-[#007336] bg-emerald-50/40'
+            : isToday
+            ? 'ring-1 ring-[#007336] bg-emerald-50/20'
+            : 'bg-white'
+        }`;
         cell.onclick = () => onCalendarDayClicked(dateStr);
 
         let eventsHtml = '';
@@ -1694,6 +2148,7 @@
 
         // Sesiones Programadas pendientes
         dayScheduled.forEach(sch => {
+          if (sch.status !== 'PROGRAMADA' && daySessions.some(s => s.date === sch.date && s.startTime === sch.startTime)) return;
           let colorClass = 'bg-blue-600 text-white';
           if (sch.status === 'CUMPLIDA_SIN_ALUMNOS') colorClass = 'bg-amber-600 text-white';
           if (sch.status === 'CANCELADA_MONITOR') colorClass = 'bg-rose-600 text-white';
@@ -1706,7 +2161,7 @@
 
         cell.innerHTML = `
           <div class="flex justify-between items-center mb-1">
-            <span class="text-[11px] font-bold ${isToday ? 'text-[#007336]' : 'text-slate-700'}">${day}</span>
+            <span class="text-[11px] font-bold ${isToday || isSelected ? 'text-[#007336]' : 'text-slate-700'}">${day}</span>
             ${(daySessions.length + dayScheduled.length) > 0 ? `<span class="w-1.5 h-1.5 rounded-full bg-[#007336]"></span>` : ''}
           </div>
           <div class="flex-1 overflow-hidden">
@@ -1716,6 +2171,7 @@
         grid.appendChild(cell);
       }
 
+      renderSelectedDayAgenda(selectedCalendarDate);
       lucide.createIcons();
     }
 
@@ -1731,12 +2187,76 @@
 
     function goToCurrentCalendarMonth() {
       currentCalDate = new Date();
+      selectedCalendarDate = currentCalDate.toISOString().split('T')[0];
       renderCalendar();
     }
 
     function onCalendarDayClicked(dateStr) {
-      document.getElementById('schDate').value = dateStr;
+      selectedCalendarDate = dateStr;
+      renderCalendar();
+    }
+
+    function openScheduleForSelectedDay() {
+      document.getElementById('schDate').value = selectedCalendarDate || new Date().toISOString().split('T')[0];
       openScheduleSessionModal();
+    }
+
+    function renderSelectedDayAgenda(dateStr) {
+      const labelEl = document.getElementById('selectedDayLabel');
+      const listEl = document.getElementById('selectedDayAgendaList');
+      if (!labelEl || !listEl) return;
+      labelEl.textContent = dateStr;
+
+      const dayHist = sessions.filter(s => s.date === dateStr);
+      const daySch = scheduledSessions.filter(sch => sch.date === dateStr && sch.status === 'PROGRAMADA');
+
+      if (dayHist.length === 0 && daySch.length === 0) {
+        listEl.innerHTML = `
+          <div class="p-3 text-center border border-dashed border-slate-200 rounded text-slate-400">
+            No hay monitorías en esta fecha.
+            <button type="button" onclick="openScheduleForSelectedDay()" class="block mx-auto mt-1.5 text-[#007336] font-semibold hover:underline">
+              + Programar monitoría el ${dateStr}
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const itemsHtml = [
+        ...daySch.map(sch => `
+          <div class="p-2.5 bg-blue-50/60 border border-blue-200 rounded space-y-1.5">
+            <div class="flex justify-between items-start">
+              <strong class="text-slate-900">${sch.subject}</strong>
+              <span class="text-[10px] font-bold px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded">Programada</span>
+            </div>
+            <p class="text-[11px] text-slate-600 font-mono">${sch.startTime} - ${sch.endTime} (${sch.hours.toFixed(1)}h) • ${sch.location}</p>
+            <p class="text-[11px] text-slate-600">${sch.topic}</p>
+            <div class="flex items-center gap-2 pt-1">
+              <button type="button" onclick="openExecuteSessionModal('${sch.id}')" class="flex-1 py-1 bg-[#007336] hover:bg-[#005025] text-white text-[11px] font-semibold rounded">
+                Validar Ejecución
+              </button>
+              <button type="button" onclick="downloadSessionIcs('${sch.id}')" class="px-2 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-[11px] font-semibold rounded" title="Descargar recordatorio .ics">
+                .ics
+              </button>
+            </div>
+          </div>
+        `),
+        ...dayHist.map(s => `
+          <div class="p-2.5 bg-slate-50 border border-slate-200 rounded space-y-1">
+            <div class="flex justify-between items-start">
+              <strong class="text-slate-900">${s.subject}</strong>
+              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                s.status === 'CANCELADA_MONITOR' ? 'bg-rose-100 text-rose-800' :
+                s.status === 'CUMPLIDA_SIN_ALUMNOS' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-[#007336]'
+              }">${s.status === 'APROBADO' ? 'Cumplida' : s.status}</span>
+            </div>
+            <p class="text-[11px] text-slate-600 font-mono">${s.startTime} - ${s.endTime} (+${Number(s.hours).toFixed(1)}h) • ${s.type}</p>
+            <p class="text-[11px] text-slate-500">${s.topic}</p>
+          </div>
+        `)
+      ].join('');
+
+      listEl.innerHTML = itemsHtml;
     }
 
     // ==================== LISTA DE PRÓXIMAS SESIONES PROGRAMADAS ====================
@@ -1767,11 +2287,14 @@
             <p class="truncate" title="${sch.topic}"><strong>Tema:</strong> ${sch.topic}</p>
           </div>
 
-          <!-- Botón de Acción Rápida: Registrar Ejecución (Check-in sin volver a llenar formulario) -->
-          <div class="pt-2 border-t border-slate-200 flex justify-end space-x-2">
-            <button onclick="openExecuteSessionModal('${sch.id}')" class="w-full py-1.5 bg-[#007336] hover:bg-[#005025] text-white text-xs font-semibold rounded flex items-center justify-center space-x-1 transition">
+          <!-- Botón de Acción Rápida: Registrar Ejecución y Recordatorio .ics -->
+          <div class="pt-2 border-t border-slate-200 flex items-center gap-2">
+            <button onclick="openExecuteSessionModal('${sch.id}')" class="flex-1 py-1.5 bg-[#007336] hover:bg-[#005025] text-white text-xs font-semibold rounded flex items-center justify-center space-x-1 transition">
               <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
               <span>Validar / Registrar Ejecución</span>
+            </button>
+            <button onclick="downloadSessionIcs('${sch.id}')" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold rounded transition" title="Agregar a Google Calendar / Outlook (.ics)">
+              .ics
             </button>
           </div>
         </div>
@@ -1782,11 +2305,67 @@
 
     // ==================== MODAL DE PROGRAMAR MONITORÍA ====================
     function openScheduleSessionModal() {
+      const errBox = document.getElementById('schConflictError');
+      if (errBox) errBox.classList.add('hidden');
+      const rep = document.getElementById('schRepeatWeekly');
+      if (rep) rep.checked = false;
       document.getElementById('modalScheduleSession').classList.remove('hidden');
     }
 
     function closeScheduleSessionModal() {
       document.getElementById('modalScheduleSession').classList.add('hidden');
+    }
+
+    function timeToMinutes(t) {
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function hasScheduleConflict(dateStr, startStr, endStr) {
+      const sMin = timeToMinutes(startStr);
+      const eMin = timeToMinutes(endStr);
+      const existing = [
+        ...sessions.filter(s => s.date === dateStr && s.status !== 'CANCELADA_MONITOR'),
+        ...scheduledSessions.filter(sch => sch.date === dateStr && sch.status === 'PROGRAMADA')
+      ];
+      return existing.find(ev => {
+        const evS = timeToMinutes(ev.startTime);
+        const evE = timeToMinutes(ev.endTime);
+        return sMin < evE && eMin > evS;
+      });
+    }
+
+    function downloadSessionIcs(scheduledId) {
+      const sch = scheduledSessions.find(s => s.id === scheduledId);
+      if (!sch) return;
+      const dateCompact = sch.date.replace(/-/g, '');
+      const startCompact = sch.startTime.replace(':', '') + '00';
+      const endCompact = sch.endTime.replace(':', '') + '00';
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Monitorias USB//PIM-D//ES',
+        'BEGIN:VEVENT',
+        `UID:${sch.id}@unisimon.edu.co`,
+        `DTSTART:${dateCompact}T${startCompact}`,
+        `DTEND:${dateCompact}T${endCompact}`,
+        `SUMMARY:Monitoría ${sch.subject}`,
+        `LOCATION:${sch.location}`,
+        `DESCRIPTION:Tema: ${sch.topic} (${sch.type})`,
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Monitoria_${sch.subject.replace(/\s+/g, '_')}_${sch.date}.ics`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('success', 'Evento descargado (.ics)', 'Ábrelo para agregarlo a Google Calendar, Outlook o Teams.');
     }
 
     function handleSaveScheduledSession(e) {
@@ -1798,29 +2377,59 @@
       const type = document.getElementById('schType').value;
       const location = document.getElementById('schLocation').value;
       const topic = document.getElementById('schTopic').value;
+      const repeatWeekly = document.getElementById('schRepeatWeekly').checked;
 
-      // Calcular horas estimadas
+      const errBox = document.getElementById('schConflictError');
+      const errText = document.getElementById('schConflictErrorText');
+      errBox.classList.add('hidden');
+
       const [sh, sm] = startTime.split(':').map(Number);
       const [eh, em] = endTime.split(':').map(Number);
-      let diffHours = (eh + em/60) - (sh + sm/60);
-      if (diffHours <= 0) diffHours = 2.0;
+      const diffHours = (eh + em/60) - (sh + sm/60);
+      if (diffHours <= 0) {
+        errText.textContent = 'La hora de finalización debe ser posterior a la hora de inicio.';
+        errBox.classList.remove('hidden');
+        return;
+      }
 
-      const newScheduled = {
-        id: 'sch-' + Date.now(),
-        date,
-        startTime,
-        endTime,
-        hours: Number(diffHours.toFixed(2)),
-        subject,
-        type,
-        location,
-        topic,
-        status: 'PROGRAMADA'
-      };
+      const weeksCount = repeatWeekly ? 4 : 1;
+      const datesToCreate = [];
+      const baseDate = new Date(date + 'T12:00:00');
+      for (let w = 0; w < weeksCount; w++) {
+        const d = new Date(baseDate);
+        d.setDate(baseDate.getDate() + (w * 7));
+        const dStr = d.toISOString().split('T')[0];
+        const conflict = hasScheduleConflict(dStr, startTime, endTime);
+        if (conflict) {
+          errText.textContent = `Cruce de horario el ${dStr}: ya tienes "${conflict.subject}" (${conflict.startTime} - ${conflict.endTime}).`;
+          errBox.classList.remove('hidden');
+          return;
+        }
+        datesToCreate.push(dStr);
+      }
 
-      scheduledSessions.push(newScheduled);
-      addAuditLog('SESIÓN PROGRAMADA', `Programó monitoría de ${subject} para el día ${date} (${startTime}-${endTime}).`);
-      alert(`✓ Monitoría de ${subject} programada con éxito para el día ${date}.\nEl día de la sesión solo deberás pulsar "Validar / Registrar Ejecución".`);
+      datesToCreate.forEach((dStr, idx) => {
+        scheduledSessions.push({
+          id: 'sch-' + Date.now() + '-' + idx,
+          date: dStr,
+          startTime,
+          endTime,
+          hours: Number(diffHours.toFixed(2)),
+          subject,
+          type,
+          location,
+          topic,
+          status: 'PROGRAMADA'
+        });
+      });
+
+      selectedCalendarDate = date;
+      addAuditLog('SESIÓN PROGRAMADA', `Programó ${datesToCreate.length} monitoría(s) de ${subject} desde ${date} (${startTime}-${endTime}).`);
+      showToast(
+        'success',
+        repeatWeekly ? '4 sesiones semanales agendadas' : 'Monitoría programada',
+        `${subject} • ${date} (${startTime} - ${endTime}).`
+      );
 
       closeScheduleSessionModal();
       renderCalendar();
@@ -2197,14 +2806,18 @@
 
     function renderMonitorsTable(monitors) {
       const tbody = document.getElementById('monitorsTableBody');
+      if (monitors.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 text-xs">No se encontraron monitores con ese criterio.</td></tr>`;
+        return;
+      }
       tbody.innerHTML = monitors.map(m => {
-        const pct = Math.min(100, ((m.platformHours / m.target) * 100)).toFixed(1);
-        const isDone = m.platformHours >= m.target;
+        const pct = m.target > 0 ? Math.min(100, ((m.platformHours / m.target) * 100)).toFixed(1) : '0.0';
+        const isDone = m.target > 0 && m.platformHours >= m.target;
         return `
-          <tr class="hover:bg-slate-50 transition-colors ${!m.enabled ? 'opacity-40 bg-slate-50' : ''}">
+          <tr class="hover:bg-slate-50 transition-colors ${!m.enabled ? 'opacity-50 bg-slate-50' : ''}">
             <td class="py-2.5 px-4 whitespace-nowrap">
               <span class="font-bold text-slate-900 block">${m.name}</span>
-              <span class="text-[10px] text-slate-400 font-mono">${m.code}</span>
+              <span class="text-[10px] text-slate-400 font-mono">${m.code} • @${m.username || m.code.toLowerCase()}</span>
             </td>
             <td class="py-2.5 px-4 text-center whitespace-nowrap font-mono font-bold text-slate-800">
               ${m.platformHours.toFixed(1)}h
@@ -2224,13 +2837,16 @@
               ${!m.enabled ? `
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-600">Inactivo</span>
               ` : isDone ? `
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-[#007336]">Cumplido (54h)</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-[#007336]">Cumplido (${m.target}h)</span>
               ` : `
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Faltan ${(m.target - m.platformHours).toFixed(1)}h</span>
               `}
             </td>
-            <td class="py-2.5 px-4 text-right whitespace-nowrap">
-              <button onclick="alert('Historial auditado de ${m.name} (${m.code}). Horas válidas: ${m.platformHours}h.')" class="text-slate-600 hover:text-[#007336] font-semibold text-xs underline">
+            <td class="py-2.5 px-4 text-right whitespace-nowrap space-x-2">
+              <button onclick="openEditUserModal('${m.id}')" class="text-slate-600 hover:text-slate-900 font-semibold text-xs underline">
+                Editar
+              </button>
+              <button onclick="openAuditMonitorModal('${m.id}')" class="text-[#007336] hover:text-[#005025] font-semibold text-xs underline">
                 Auditar
               </button>
             </td>
@@ -2240,10 +2856,166 @@
       lucide.createIcons();
     }
 
+    let currentMonitorStatusFilter = 'ALL';
+    let currentMonitorSort = { key: 'platformHours', asc: false };
+
+    function updateDirectorKPIs() {
+      const monitors = usersList.filter(u => u.role === 'MONITOR');
+      const activeMonitors = monitors.filter(m => m.enabled);
+      const totalHrs = monitors.reduce((acc, m) => acc + Number(m.platformHours || 0), 0);
+      const completed = monitors.filter(m => m.target > 0 && m.platformHours >= m.target).length;
+      const atRisk = monitors.filter(m => m.enabled && m.platformHours < 20).length;
+      const avgPct = monitors.length > 0
+        ? (monitors.reduce((acc, m) => acc + (m.target > 0 ? Math.min(100, (m.platformHours / m.target) * 100) : 0), 0) / monitors.length).toFixed(1)
+        : '0.0';
+
+      const elHrs = document.getElementById('kpiDirTotalHours');
+      const elSub = document.getElementById('kpiDirTotalMonitorsSub');
+      const elRisk = document.getElementById('kpiDirAtRisk');
+      const elComp = document.getElementById('kpiDirCompleted');
+      const elCompSub = document.getElementById('kpiDirCompletedSub');
+      const elAvg = document.getElementById('kpiDirAvgProgress');
+
+      if (elHrs) elHrs.textContent = `${totalHrs.toFixed(1)}h`;
+      if (elSub) elSub.textContent = `Total en ${activeMonitors.length} monitores activos`;
+      if (elRisk) elRisk.textContent = String(atRisk);
+      if (elComp) elComp.innerHTML = `${completed} <span class="text-sm text-slate-400 font-normal">/ ${monitors.length}</span>`;
+      if (elCompSub) elCompSub.textContent = `${monitors.length > 0 ? ((completed / monitors.length) * 100).toFixed(0) : 0}% alcanzaron su meta`;
+      if (elAvg) elAvg.textContent = `${avgPct}%`;
+    }
+
+    function setMonitorStatusFilter(status) {
+      currentMonitorStatusFilter = status;
+      document.querySelectorAll('.mon-filter-btn').forEach(btn => {
+        const isActive = btn.dataset.monFilter === status;
+        btn.className = isActive
+          ? 'mon-filter-btn px-2.5 py-1 rounded font-semibold bg-slate-900 text-white'
+          : 'mon-filter-btn px-2.5 py-1 rounded font-semibold bg-white text-slate-600 border border-slate-300 hover:bg-slate-50';
+      });
+      filterMonitorsTable();
+    }
+
+    function sortMonitorsBy(key) {
+      if (currentMonitorSort.key === key) {
+        currentMonitorSort.asc = !currentMonitorSort.asc;
+      } else {
+        currentMonitorSort.key = key;
+        currentMonitorSort.asc = key === 'name';
+      }
+      filterMonitorsTable();
+    }
+
     function filterMonitorsTable() {
-      const q = document.getElementById('coordSearch').value.toLowerCase();
-      const filtered = usersList.filter(u => u.role === 'MONITOR' && (u.name.toLowerCase().includes(q) || u.code.toLowerCase().includes(q)));
+      const searchEl = document.getElementById('coordSearch');
+      const q = searchEl ? searchEl.value.toLowerCase() : '';
+      let filtered = usersList.filter(u =>
+        u.role === 'MONITOR' &&
+        (u.name.toLowerCase().includes(q) ||
+         u.code.toLowerCase().includes(q) ||
+         (u.username && u.username.toLowerCase().includes(q)))
+      );
+
+      if (currentMonitorStatusFilter === 'CUMPLIDO') {
+        filtered = filtered.filter(m => m.enabled && m.target > 0 && m.platformHours >= m.target);
+      } else if (currentMonitorStatusFilter === 'PROGRESO') {
+        filtered = filtered.filter(m => m.enabled && m.platformHours < m.target);
+      } else if (currentMonitorStatusFilter === 'RIESGO') {
+        filtered = filtered.filter(m => m.enabled && m.platformHours < 20);
+      } else if (currentMonitorStatusFilter === 'INACTIVO') {
+        filtered = filtered.filter(m => !m.enabled);
+      }
+
+      filtered.sort((a, b) => {
+        let vA, vB;
+        if (currentMonitorSort.key === 'name') {
+          return currentMonitorSort.asc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+        } else if (currentMonitorSort.key === 'progress') {
+          vA = a.target > 0 ? a.platformHours / a.target : 0;
+          vB = b.target > 0 ? b.platformHours / b.target : 0;
+        } else {
+          vA = a.platformHours;
+          vB = b.platformHours;
+        }
+        return currentMonitorSort.asc ? vA - vB : vB - vA;
+      });
+
+      updateDirectorKPIs();
       renderMonitorsTable(filtered);
+    }
+
+    function exportMonitorsCsv() {
+      const monitors = usersList.filter(u => u.role === 'MONITOR');
+      const headers = ['Código', 'Usuario', 'Nombre Completo', 'Correo', 'Horas Plataforma', 'Horas Excel', 'Meta', 'Estado'];
+      const rows = monitors.map(m => [
+        m.code,
+        m.username || '',
+        `"${m.name}"`,
+        m.email,
+        m.platformHours.toFixed(1),
+        m.excelHours.toFixed(1),
+        m.target,
+        m.enabled ? 'ACTIVO' : 'INACTIVO'
+      ]);
+      const csv = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `consolidado_monitorias_usb_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('success', 'Consolidado exportado', 'Se descargó el archivo CSV compatible con Excel.');
+    }
+
+    function openAuditMonitorModal(id) {
+      const m = usersList.find(x => x.id === id);
+      if (!m) return;
+      const pct = m.target > 0 ? Math.min(100, (m.platformHours / m.target) * 100).toFixed(1) : '0.0';
+      const diff = Number((m.platformHours - m.excelHours).toFixed(1));
+      document.getElementById('auditMonCode').textContent = m.code;
+      document.getElementById('auditMonName').textContent = m.name;
+      document.getElementById('auditMonMeta').textContent = `@${m.username || m.code.toLowerCase()} • ${m.email}`;
+      document.getElementById('auditMonBody').innerHTML = `
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded space-y-2">
+          <div class="flex justify-between font-bold text-slate-800">
+            <span>Progreso hacia meta (${m.target}h)</span>
+            <span class="font-mono text-[#007336]">${m.platformHours.toFixed(1)}h (${pct}%)</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded h-2 overflow-hidden">
+            <div class="h-full bg-[#007336]" style="width: ${pct}%"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+            <div class="bg-white p-2 border border-slate-200 rounded">
+              <span class="text-[10px] text-slate-500 block">Plataforma</span>
+              <strong class="font-mono text-slate-900">${m.platformHours.toFixed(1)}h</strong>
+            </div>
+            <div class="bg-white p-2 border border-slate-200 rounded">
+              <span class="text-[10px] text-slate-500 block">Excel Maestro</span>
+              <strong class="font-mono text-[#007336]">${m.excelHours.toFixed(1)}h</strong>
+            </div>
+            <div class="bg-white p-2 border border-slate-200 rounded">
+              <span class="text-[10px] text-slate-500 block">Diferencia</span>
+              <strong class="font-mono ${diff === 0 ? 'text-slate-600' : 'text-amber-700'}">${diff > 0 ? '+' + diff : diff}h</strong>
+            </div>
+          </div>
+        </div>
+        <div class="p-3 border border-slate-200 rounded bg-white">
+          <p class="font-bold text-slate-800 mb-1">Estado de Cuenta y Acceso</p>
+          <p class="text-slate-600">Estado: <strong>${m.enabled ? 'Habilitado para registrar horas' : 'Deshabilitado'}</strong> • Rol: <strong class="font-mono">${m.role}</strong></p>
+        </div>
+      `;
+      document.getElementById('btnAuditEditUser').onclick = () => {
+        closeAuditMonitorModal();
+        openEditUserModal(m.id);
+      };
+      document.getElementById('modalAuditMonitor').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeAuditMonitorModal() {
+      document.getElementById('modalAuditMonitor').classList.add('hidden');
     }
 
     // ==================== AUDITORÍA CRUZADA (EXCEL DEL MAESTRO) ====================
@@ -2324,13 +3096,34 @@
     // ==================== PANEL CRUD ROLES Y USUARIOS ====================
     function renderAdminUsersTable() {
       const tbody = document.getElementById('adminUsersTableBody');
-      tbody.innerHTML = usersList.map((u, idx) => `
+      const searchEl = document.getElementById('adminUserSearch');
+      const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+      const filtered = usersList.filter(u =>
+        !q ||
+        u.name.toLowerCase().includes(q) ||
+        u.code.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        (u.username && u.username.toLowerCase().includes(q))
+      );
+
+      const countEl = document.getElementById('adminUsersCount');
+      if (countEl) countEl.textContent = `Mostrando ${filtered.length} de ${usersList.length} usuarios`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 text-xs">No se encontraron usuarios con ese criterio.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(u => `
         <tr class="hover:bg-slate-50 transition-colors ${!u.enabled ? 'opacity-50' : ''}">
           <td class="py-2.5 px-4">
             <span class="font-bold text-slate-900 block">${u.name}</span>
             <span class="text-[10px] text-slate-400 font-mono">${u.email}</span>
           </td>
           <td class="py-2.5 px-4 font-mono font-bold text-slate-700">${u.code}</td>
+          <td class="py-2.5 px-4 font-mono text-slate-700">
+            <span class="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[11px]">@${u.username || u.code.toLowerCase()}</span>
+          </td>
           <td class="py-2.5 px-4">
             <select onchange="changeUserRole('${u.id}', this.value)" class="text-xs p-1 border border-slate-300 rounded font-semibold text-slate-800 bg-white">
               <option value="MONITOR" ${u.role === 'MONITOR' ? 'selected' : ''}>MONITOR</option>
@@ -2345,8 +3138,8 @@
               ${u.enabled ? 'Activo' : 'Deshabilitado'}
             </button>
           </td>
-          <td class="py-2.5 px-4 text-right space-x-2">
-            <button onclick="editUserTargetPrompt('${u.id}')" class="text-xs text-slate-600 hover:text-[#007336] underline font-semibold">Meta</button>
+          <td class="py-2.5 px-4 text-right space-x-2 whitespace-nowrap">
+            <button onclick="openEditUserModal('${u.id}')" class="text-xs text-[#007336] hover:text-[#005025] underline font-semibold">Editar</button>
             <button onclick="deleteUser('${u.id}')" class="text-xs text-rose-600 hover:text-rose-800 underline font-semibold">Eliminar</button>
           </td>
         </tr>
@@ -2359,8 +3152,9 @@
       if (!u) return;
       u.role = newRole;
       addAuditLog('CAMBIO ROL', `Rol de ${u.code} actualizado a ${newRole}.`);
-      alert(`Rol actualizado: ${u.name} ahora es ${newRole}.`);
+      showToast('success', 'Rol actualizado', `${u.name} ahora tiene el rol ${newRole}.`);
       renderAdminUsersTable();
+      renderMonitorsTable(usersList.filter(x => x.role === 'MONITOR'));
     }
 
     function toggleUserEnabled(id) {
@@ -2368,77 +3162,212 @@
       if (!u) return;
       u.enabled = !u.enabled;
       addAuditLog('ESTADO USUARIO', `Usuario ${u.code} ${u.enabled ? 'Habilitado' : 'Deshabilitado'}.`);
+      showToast('info', 'Estado actualizado', `${u.code} quedó ${u.enabled ? 'habilitado' : 'deshabilitado'}.`);
       renderAdminUsersTable();
       renderMonitorsTable(usersList.filter(x => x.role === 'MONITOR'));
-    }
-
-    function editUserTargetPrompt(id) {
-      const u = usersList.find(x => x.id === id);
-      if (!u) return;
-      const val = prompt(`Ingresa la nueva meta de horas para ${u.name} (actual: ${u.target}h):`, u.target);
-      if (val !== null && !isNaN(val) && val > 0) {
-        u.target = parseFloat(val);
-        addAuditLog('AJUSTE META', `Meta de ${u.code} ajustada a ${u.target}h.`);
-        renderAdminUsersTable();
-        renderMonitorsTable(usersList.filter(x => x.role === 'MONITOR'));
-      }
     }
 
     function deleteUser(id) {
       const u = usersList.find(x => x.id === id);
       if (!u) return;
-      if (confirm(`¿Estás seguro de eliminar el usuario ${u.name} (${u.code})?`)) {
+      document.getElementById('confirmDeleteText').innerHTML = `¿Estás seguro de eliminar la cuenta de <strong>${u.name}</strong> (<code class="font-mono">${u.code}</code>)? Esta acción no se puede deshacer.`;
+      document.getElementById('btnConfirmDelete').onclick = () => {
         usersList = usersList.filter(x => x.id !== id);
         addAuditLog('ELIMINAR USUARIO', `Eliminó usuario ${u.code}.`);
+        closeConfirmDeleteModal();
         renderAdminUsersTable();
         renderMonitorsTable(usersList.filter(x => x.role === 'MONITOR'));
-      }
+        showToast('info', 'Usuario eliminado', `Se eliminó la cuenta ${u.code}.`);
+      };
+      document.getElementById('modalConfirmDelete').classList.remove('hidden');
+    }
+
+    function closeConfirmDeleteModal() {
+      document.getElementById('modalConfirmDelete').classList.add('hidden');
+    }
+
+    function autoFillUserFields(codeVal) {
+      const isEditing = Boolean(document.getElementById('editUserId').value);
+      if (isEditing) return;
+      const clean = codeVal.trim().toLowerCase();
+      if (!clean) return;
+      const userInput = document.getElementById('newUserUsername');
+      const emailInput = document.getElementById('newUserEmail');
+      if (!userInput.dataset.touched) userInput.value = clean;
+      if (!emailInput.dataset.touched) emailInput.value = `${clean}@unisimon.edu.co`;
+    }
+
+    function generateUserPassword() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+      let pwd = 'Usb';
+      for (let i = 0; i < 6; i++) pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+      const input = document.getElementById('newUserPassword');
+      input.value = pwd;
+      input.type = 'text';
     }
 
     function openAddUserModal() {
+      document.getElementById('editUserId').value = '';
+      document.getElementById('modalUserTitle').textContent = 'Crear Nuevo Usuario';
+      document.getElementById('modalUserSubtitle').textContent = 'Asigna credenciales de acceso (usuario y contraseña) y rol institucional.';
+      document.getElementById('btnSaveUser').textContent = 'Crear Usuario';
+      document.getElementById('lblNewUserPassword').textContent = 'Contraseña: *';
+      document.getElementById('newUserPassword').placeholder = 'Mínimo 4 caracteres';
+      document.getElementById('newUserPassword').required = true;
+      document.getElementById('newUserName').value = '';
+      document.getElementById('newUserCode').value = '';
+      document.getElementById('newUserEmail').value = '';
+      document.getElementById('newUserUsername').value = '';
+      document.getElementById('newUserPassword').value = '';
+      document.getElementById('newUserRole').value = 'MONITOR';
+      document.getElementById('newUserTarget').value = '54';
+      document.getElementById('newUserEnabled').value = 'true';
+      document.getElementById('userFormError').classList.add('hidden');
       document.getElementById('modalAddUser').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function openEditUserModal(id) {
+      const u = usersList.find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('editUserId').value = u.id;
+      document.getElementById('modalUserTitle').textContent = 'Modificar Usuario';
+      document.getElementById('modalUserSubtitle').textContent = `Editando cuenta ${u.code} (@${u.username || u.code.toLowerCase()})`;
+      document.getElementById('btnSaveUser').textContent = 'Guardar Cambios';
+      document.getElementById('lblNewUserPassword').textContent = 'Nueva Contraseña (opcional):';
+      document.getElementById('newUserPassword').placeholder = 'Dejar vacío para mantener actual';
+      document.getElementById('newUserPassword').required = false;
+      document.getElementById('newUserName').value = u.name;
+      document.getElementById('newUserCode').value = u.code;
+      document.getElementById('newUserEmail').value = u.email;
+      document.getElementById('newUserUsername').value = u.username || u.code.toLowerCase();
+      document.getElementById('newUserPassword').value = '';
+      document.getElementById('newUserRole').value = u.role;
+      document.getElementById('newUserTarget').value = u.target;
+      document.getElementById('newUserEnabled').value = String(u.enabled);
+      document.getElementById('userFormError').classList.add('hidden');
+      document.getElementById('modalAddUser').classList.remove('hidden');
+      lucide.createIcons();
     }
 
     function closeAddUserModal() {
       document.getElementById('modalAddUser').classList.add('hidden');
     }
 
-    function handleCreateUser(e) {
+    function handleSaveUser(e) {
       e.preventDefault();
+      const editId = document.getElementById('editUserId').value;
       const name = document.getElementById('newUserName').value.trim();
-      const code = document.getElementById('newUserCode').value.trim();
-      const email = document.getElementById('newUserEmail').value.trim();
+      const code = document.getElementById('newUserCode').value.trim().toUpperCase();
+      const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+      const username = document.getElementById('newUserUsername').value.trim();
+      const password = document.getElementById('newUserPassword').value.trim();
       const role = document.getElementById('newUserRole').value;
       const target = parseFloat(document.getElementById('newUserTarget').value);
+      const enabled = document.getElementById('newUserEnabled').value === 'true';
 
-      usersList.push({
-        id: String(Date.now()),
-        code,
-        name,
-        email,
-        role,
-        platformHours: 0.0,
-        excelHours: 0.0,
-        target: target || 54.0,
-        enabled: true
-      });
+      const errBox = document.getElementById('userFormError');
+      const errText = document.getElementById('userFormErrorText');
+      errBox.classList.add('hidden');
 
-      addAuditLog('CREAR USUARIO', `Creó usuario ${code} con rol ${role}.`);
-      alert(`Usuario ${name} (${code}) creado con éxito.`);
+      if (!editId && password.length < 4) {
+        errText.textContent = 'La contraseña inicial debe tener al menos 4 caracteres.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      if (editId && password.length > 0 && password.length < 4) {
+        errText.textContent = 'Si cambias la contraseña, debe tener al menos 4 caracteres.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      const dupCode = usersList.some(x => x.code.toUpperCase() === code && x.id !== editId);
+      if (dupCode) {
+        errText.textContent = `Ya existe otro usuario con el código ${code}.`;
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      const dupUser = usersList.some(x => (x.username || '').toLowerCase() === username.toLowerCase() && x.id !== editId);
+      if (dupUser) {
+        errText.textContent = `El usuario "${username}" ya está asignado a otra cuenta.`;
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      if (editId) {
+        const u = usersList.find(x => x.id === editId);
+        if (u) {
+          u.name = name;
+          u.code = code;
+          u.email = email;
+          u.username = username;
+          if (password) u.password = password;
+          u.role = role;
+          u.target = isNaN(target) ? 54.0 : target;
+          u.enabled = enabled;
+          addAuditLog('MODIFICAR USUARIO', `Actualizó datos/credenciales de ${code} (@${username}).`);
+          showToast('success', 'Usuario actualizado', `${name} (@${username})${password ? ' con nueva contraseña' : ''}.`);
+        }
+      } else {
+        usersList.unshift({
+          id: String(Date.now()),
+          code,
+          username,
+          password,
+          name,
+          email,
+          role,
+          platformHours: 0.0,
+          excelHours: 0.0,
+          target: isNaN(target) ? 54.0 : target,
+          enabled
+        });
+        addAuditLog('CREAR USUARIO', `Creó usuario ${code} (@${username}) con rol ${role}.`);
+        showToast('success', 'Usuario creado', `${name} ya puede iniciar sesión con @${username}.`);
+      }
+
       closeAddUserModal();
       renderAdminUsersTable();
       renderMonitorsTable(usersList.filter(x => x.role === 'MONITOR'));
+      renderComparisonTable();
     }
 
     function showAttendeesDetail(sessId) {
       const s = sessions.find(x => x.id === sessId);
       if (!s || !s.attendees || s.attendees.length === 0) {
-        alert('Esta sesión no tiene estudiantes registrados.');
+        showToast('info', 'Sin asistentes', 'Esta sesión no tiene estudiantes registrados individualmente.');
         return;
       }
-      const list = s.attendees.map((a, i) => `${i+1}. ${a.name} (${a.docType}: ${a.docNum}) - ${a.refType === 'V' ? 'Voluntaria' : 'Remitido'}`).join('\n');
-      alert(`Estudiantes asistentes a la monitoría de ${s.subject}:\n\n${list}`);
+      document.getElementById('attendeesModalSubject').textContent = `${s.subject} • ${s.date} (${s.attendees.length} estudiantes)`;
+      document.getElementById('attendeesModalList').innerHTML = s.attendees.map((a, i) => `
+        <div class="p-2.5 flex items-center justify-between bg-white">
+          <div>
+            <span class="font-bold text-slate-800">${i + 1}. ${a.name}</span>
+            <span class="text-[11px] text-slate-500 block font-mono">${a.docType}: ${a.docNum}</span>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${a.refType === 'V' ? 'bg-slate-100 text-slate-700' : 'bg-emerald-50 text-[#007336] border border-emerald-200'}">
+            ${a.refType === 'V' ? 'Voluntaria' : 'Remitido'}
+          </span>
+        </div>
+      `).join('');
+      document.getElementById('modalAttendeesDetail').classList.remove('hidden');
+      lucide.createIcons();
     }
+
+    function closeAttendeesModal() {
+      document.getElementById('modalAttendeesDetail').classList.add('hidden');
+    }
+
+    // Cierre rápido con tecla Escape para modales activos
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['modalAddUser', 'modalAuditMonitor', 'modalAttendeesDetail', 'modalConfirmDelete'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && !el.classList.contains('hidden')) el.classList.add('hidden');
+        });
+      }
+    });
   </script>
 </body>
 </html>
